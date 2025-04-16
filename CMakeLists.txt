@@ -8,3 +8,4 @@ include(cmake/compile.cmake)
 include(cmake/qt.cmake)
 
 add_subdirectory(server)
+add_subdirectory(tests)
