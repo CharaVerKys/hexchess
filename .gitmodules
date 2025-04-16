@@ -1,0 +1,3 @@
+[submodule "somecode"]
+	path = somecode
+	url = https://github.com/CharaVerKys/some-repeatable-code.git
