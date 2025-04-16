@@ -60,4 +60,47 @@ public:
 
 private:
     Board(){}
+
+    void initColors(){
+        auto ranges = fieldRanges();
+        std::array<Color,11> firstColor = {
+            Color::first,
+            Color::second,
+            Color::third,
+        
+            Color::first,
+            Color::second,
+
+            Color::third,
+        
+            Color::second,
+            Color::first,
+        
+            Color::third,
+            Color::second,
+            Color::first,
+        };
+        auto curFirstColor = firstColor.begin();
+
+        for (pair_depth range : ranges) {
+            Color curColor = *curFirstColor;
+            auto view = *o_field | std::views::drop(range.drop) | std::views::take(range.take);
+            for(Cell& cell: view){
+                cell.color = curColor;
+                switch (curColor) {
+                    case Color::first:{
+                        curColor = Color::second;
+                    }break;
+                    case Color::second:{
+                        curColor = Color::third;
+                    }break;
+                    case Color::third:{
+                        curColor = Color::first;
+                    }break;
+                    /*unreachable*/case Color::invalid: std::abort();
+                }
+            }// for curent range
+            ++curFirstColor;
+        }
+    }
 };
