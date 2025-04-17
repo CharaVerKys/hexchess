@@ -7,6 +7,13 @@
 struct figures_positions {
     struct position{
         std::uint8_t column, row;
+        std::strong_ordering operator<=>(position const& other) const noexcept{
+            if(column <=> other.column not_eq std::strong_ordering::equal){
+                return column <=> other.column; 
+            }
+            // assert(column <=> other.column == std::strong_ordering::equal);
+            return row <=> other.row;
+        }
     };
     // todo make it consteval
     static std::map<position,Figure::type> getWhiteStandardPosition(){

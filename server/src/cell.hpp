@@ -1,15 +1,8 @@
 #pragma once
 
-#include <cstdint>
+#include <types.hpp>
 
 class Figure;
-
-enum class Color : std::int8_t{
-    invalid,
-    first,
-    second,
-    third,
-};
 
 struct Cell{
     Figure* figure = nullptr;
