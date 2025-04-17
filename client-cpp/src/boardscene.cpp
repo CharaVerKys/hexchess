@@ -37,6 +37,12 @@ void BoardSceneWidget::setPeace(lhc::position pos, figure_type type, figure_side
     setPeace_private(type, pos, side);
 }
 
+void BoardSceneWidget::colorizeCell(QGraphicsPolygonItem* item){
+    assert(item);
+    oldColor = std::make_pair(item,item->brush());
+    item->setBrush({QColor{0x80,0x4D,0x62}});
+}
+
 HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPolygonItem*ptr){
     assert(ptr);
     for(HexAndPeace const& cell : *allCells){
@@ -108,6 +114,9 @@ void BoardSceneWidget::initAllCells(){
 
 bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
     if (obj == scene && ev->type() == QEvent::GraphicsSceneMousePress) {
+        if(oldColor){
+            oldColor->first->setBrush(oldColor->second);
+        } 
         auto* me = static_cast<QGraphicsSceneMouseEvent*>(ev);
         auto hits = scene->items(me->scenePos());
         if (!hits.isEmpty()) {
@@ -120,10 +129,12 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
                 }else{
                     emit clicked(cell.position, std::nullopt, std::nullopt);
                 }
+                colorizeCell(cell.hex);
             }
             if (pix) {
                 auto& cell = findCellByGraphItem(pix);
                 emit clicked(cell.position, cell.peace->type, cell.peace->side);
+                colorizeCell(cell.hex);
             }
         }
     }
