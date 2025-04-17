@@ -5,10 +5,14 @@
 #include <QPolygonF>
 #include <cmath>
 #include <QVBoxLayout>
+#include <QEvent>
+#include <QGraphicsSceneMouseEvent>
+
 
 BoardSceneWidget::BoardSceneWidget(QWidget* parent)
     : QWidget(parent), scene(new QGraphicsScene(this)), view(new QGraphicsView(scene, this)) {
     view->setRenderHint(QPainter::Antialiasing);
+    scene->installEventFilter(this);
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(view);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -47,7 +51,7 @@ QBrush BoardSceneWidget::choiceBrushColor(Color const& color){
 }
 void BoardSceneWidget::initAllCells(){
     assert(not allCells);
-    allCells = std::array<QGraphicsPolygonItem*,91>{};
+    allCells = std::array<HexAndPeace,91>{};
 
     [[maybe_unused]] constexpr std::uint8_t skipForGridLogic[11] = {3,2,2,1,1,0,1,1,2,2,3};
     auto curFirstColor = lhc::constants::firstColor.begin();
@@ -62,7 +66,7 @@ void BoardSceneWidget::initAllCells(){
             lhc::color::next(curColor);
             QPolygonF hex = createHexagon(currentX, std::sqrt(3) / 2 * hex_size * 2 * (currentRow+skipForGridLogic[currentColumn]) + (currentColumn%2 * sqrt(3)/2*hex_size));
             QGraphicsPolygonItem* item = scene->addPolygon(hex, QPen(Qt::black), brushColor);
-            allCells->at(indexInAllCells) = item;
+            allCells->at(indexInAllCells) = {item,std::nullopt};
             ++indexInAllCells;
         }
         ++curFirstColor;
@@ -70,21 +74,39 @@ void BoardSceneWidget::initAllCells(){
 }
 
 void BoardSceneWidget::setPeace(figure_type const& type, lhc::position const& pos, figure_side const& side){
-    QGraphicsPolygonItem* polyItem = getCellAt(pos);
+    HexAndPeace& cell = getCellAt(pos);
     GraphicPeace peace{getPeaceGraphicItem(type,side),type,pos,side};
 
-    QPointF center = polyItem->boundingRect().center();
-    center = polyItem->mapToScene(center); // переводим в координаты сцены
+    QPointF center = cell.hex->boundingRect().center();
+    center = cell.hex->mapToScene(center); // переводим в координаты сцены
     peace.item->setOffset(
         center.x() - static_cast<float>(peace.item->pixmap().width()  )/2,
         center.y() - static_cast<float>(peace.item->pixmap().height() )/2
     );
     scene->addItem(peace.item.get());
 
-    allPeaces.push_back(std::move(peace));
+    cell.peace = std::move(peace);
 }
 
-QGraphicsPolygonItem* BoardSceneWidget::getCellAt(lhc::position const& pos){
+bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
+    if (obj == scene && ev->type() == QEvent::GraphicsSceneMousePress) {
+        auto* me = static_cast<QGraphicsSceneMouseEvent*>(ev);
+        auto hits = scene->items(me->scenePos());
+        if (!hits.isEmpty()) {
+            auto *hex = qgraphicsitem_cast<QGraphicsPolygonItem*>(hits.first());
+            auto *pix = qgraphicsitem_cast<QGraphicsPixmapItem*>(hits.first());
+            if (hex) {
+                qDebug() << "hex";
+            }
+            if (pix) {
+                qDebug() << "pix";
+            }
+        }
+    }
+    return QWidget::eventFilter(obj, ev);
+}
+
+HexAndPeace& BoardSceneWidget::getCellAt(lhc::position const& pos){
     assert(pos.column <12);
     auto range = lhc::field_ranges();
     auto depth = range.begin();

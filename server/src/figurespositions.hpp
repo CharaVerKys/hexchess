@@ -1,8 +1,8 @@
 #pragma once
 
+#include "types.hpp"
 #include <cstdint>
 #include <map>
-#include "figure.hpp"
 
 struct figures_positions {
     struct position{

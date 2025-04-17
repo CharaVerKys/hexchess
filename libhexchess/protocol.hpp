@@ -1,9 +1,7 @@
 #pragma once
 
-#include "field_ranges.hpp"
 #include "types.hpp"
 #include <cstdint>
-#include <span>
 #include <vector>
 
 namespace lhc::protocol{

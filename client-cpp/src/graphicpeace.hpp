@@ -1,5 +1,4 @@
-
-#include "protocol.hpp"
+#include "types.hpp"
 #include <qgraphicsitem.h>
 
 
@@ -18,4 +17,9 @@ struct GraphicPeace{
     figure_type type;
     lhc::position position;
     figure_side side;
+};
+
+struct HexAndPeace{
+    QGraphicsPolygonItem* hex = nullptr;
+    std::optional<GraphicPeace> peace;
 };
