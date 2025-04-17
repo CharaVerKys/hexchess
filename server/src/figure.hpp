@@ -3,6 +3,7 @@
 #include <cstdint>
 
 class Figure{
+public:
     enum class type : std::int8_t{
         invalid = -1,
         pawn    =  0,
@@ -13,4 +14,5 @@ class Figure{
         king    =  5,
     };
     virtual type getType() = 0;
+    virtual ~Figure(){}
 };
