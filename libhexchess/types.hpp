@@ -21,6 +21,13 @@ enum class figure_type : std::int8_t{
     king    =  5,
 };
 
+enum class figure_side : std::int8_t{
+    invalid = -1,
+    white   =  0,
+    black   =  1,
+};
+
+
 namespace lhc{
     struct position{
         std::uint8_t column;

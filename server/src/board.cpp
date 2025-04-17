@@ -42,7 +42,7 @@ lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
         for(std::uint8_t row = 0; row < currentRange->take; ++row){
             Figure const*const figure = o_field->at(currentRange->drop + row).figure;
             if(figure not_eq nullptr){
-                allPeaces.emplace_back(figure->getType(), lhc::position{column,row});
+                allPeaces.emplace_back(figure->getType(), lhc::position{column,row}, figure->getSide());
             }//if exist
         }//row
     }//col
@@ -68,7 +68,7 @@ void Board::initColors(std::array<Cell,91>& field){
 
 // ? function relate to: setWhiteFigures, setBlackFigures, and maybe other
 namespace details{
-    void setFiguresSameStyle(std::array<Cell,91>& field,std::map<figures_positions::position, figure_type> const& figures){
+    void setFiguresSameStyle(std::array<Cell,91>& field,std::map<figures_positions::position, figure_type> const& figures, const figure_side side){
         auto ranges = lhc::field_ranges();
         auto currentRange = ranges.begin();
 
@@ -77,33 +77,24 @@ namespace details{
                 if(figures.contains({column,row})){
                     Figure*& todoname = field.at(currentRange->drop + row).figure;
                     assert(todoname == nullptr);
-                    //todo delete asserts
-                    assert(todoname = new figures::Bishop);
-                    assert(todoname);
-                    assert(field.at(currentRange->drop + row).figure);
-                    assert(field.at(currentRange->drop + row).figure == todoname);
-                    assert(field.at(currentRange->drop + row).figure->getType() == todoname->getType());
-                    delete todoname;
-                    todoname = nullptr;
-                    //todo ----
                     switch (figures.at({column,row})) {
                         case figure_type::pawn:{
-                                todoname = new figures::Pawn;
+                                todoname = new figures::Pawn(side);
                         }break;
                         case figure_type::bishop:{
-                                todoname = new figures::Bishop;
+                                todoname = new figures::Bishop(side);
                         }break;
                         case figure_type::knight:{
-                                todoname = new figures::Knight;
+                                todoname = new figures::Knight(side);
                         }break;
                         case figure_type::rook:{
-                                todoname = new figures::Rook;
+                                todoname = new figures::Rook(side);
                         }break;
                         case figure_type::queen:{
-                                todoname = new figures::Queen;
+                                todoname = new figures::Queen(side);
                         }break;
                         case figure_type::king:{
-                                todoname = new figures::King;
+                                todoname = new figures::King(side);
                         }break;
                         /*unreachable*/case figure_type::invalid: std::abort();
                     }//switch
@@ -115,9 +106,9 @@ namespace details{
 
 void Board::setWhiteFigures(std::array<Cell,91>& field){
     auto figures = figures_positions::getWhiteStandardPosition();
-    details::setFiguresSameStyle(field, figures);
+    details::setFiguresSameStyle(field, figures, figure_side::white);
 }
 void Board::setBlackFigures(std::array<Cell,91>& field){
     auto figures = figures_positions::getBlackStandardPosition();
-    details::setFiguresSameStyle(field, figures);
+    details::setFiguresSameStyle(field, figures, figure_side::black);
 }

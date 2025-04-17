@@ -18,9 +18,9 @@ private:
     QBrush choiceBrushColor(Color const&);
     void initAllCells();
 
-    void setPeace(figure_type const&, lhc::position const&);
+    void setPeace(figure_type const&, lhc::position const&, figure_side const&);
     QGraphicsPolygonItem* getCellAt(lhc::position const&);
-    GraphicPeace::ptr_type getPeaceGraphicItem(figure_type const&);
+    GraphicPeace::ptr_type getPeaceGraphicItem(figure_type const&, figure_side const&);
 
 private:
     QGraphicsScene* scene;

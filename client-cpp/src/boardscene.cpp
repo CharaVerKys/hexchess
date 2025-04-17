@@ -18,7 +18,7 @@ BoardSceneWidget::BoardSceneWidget(QWidget* parent)
 
 void BoardSceneWidget::setAllPeaces(std::vector<lhc::protocol::payload::peace> const& initialPeaces){
     for(auto const& peace : initialPeaces){
-        setPeace(peace.type, peace.position);
+        setPeace(peace.type, peace.position, peace.side);
     }
 }
 
@@ -69,9 +69,9 @@ void BoardSceneWidget::initAllCells(){
     }
 }
 
-void BoardSceneWidget::setPeace(figure_type const& type, lhc::position const& pos){
+void BoardSceneWidget::setPeace(figure_type const& type, lhc::position const& pos, figure_side const& side){
     QGraphicsPolygonItem* polyItem = getCellAt(pos);
-    GraphicPeace peace{getPeaceGraphicItem(type),type,pos};
+    GraphicPeace peace{getPeaceGraphicItem(type,side),type,pos,side};
 
     QPointF center = polyItem->boundingRect().center();
     center = polyItem->mapToScene(center); // переводим в координаты сцены
@@ -94,27 +94,38 @@ QGraphicsPolygonItem* BoardSceneWidget::getCellAt(lhc::position const& pos){
     return allCells->at(pair.drop + pos.row);
 }
 
-GraphicPeace::ptr_type BoardSceneWidget::getPeaceGraphicItem(figure_type const& type){
-     std::string baseDir = "/home/charaverk/Pictures/chess/";
+GraphicPeace::ptr_type BoardSceneWidget::getPeaceGraphicItem(figure_type const& type, figure_side const& side){
+     QString baseDir = "/home/charaverk/Pictures/chess/";
      QPixmap map;
+     QString wb;
+     switch (side) {
+        case figure_side::white:{
+            wb = "w";
+        }break;
+        case figure_side::black:{
+            wb = "b";
+        }break;
+        /*unreachable*/case figure_side::invalid: std::abort();
+     }
+
      switch (type) {
         case figure_type::pawn:{
-            map.load(baseDir.append("pawn-w.svg").c_str());
+            map.load(baseDir.append("pawn-%1.svg").arg(wb));
         }break;
         case figure_type::bishop:{
-            map.load(baseDir.append("bishop-w.svg").c_str());
+            map.load(baseDir.append("bishop-%1.svg").arg(wb));
         }break;
         case figure_type::knight:{
-            map.load(baseDir.append("knight-w.svg").c_str());
+            map.load(baseDir.append("knight-%1.svg").arg(wb));
         }break;
         case figure_type::rook:{
-            map.load(baseDir.append("rook-w.svg").c_str());
+            map.load(baseDir.append("rook-%1.svg").arg(wb));
         }break;
         case figure_type::queen:{
-            map.load(baseDir.append("queen-w.svg").c_str());
+            map.load(baseDir.append("queen-%1.svg").arg(wb));
         }break;
         case figure_type::king:{
-            map.load(baseDir.append("king-w.svg").c_str());
+            map.load(baseDir.append("king-%1.svg").arg(wb));
         }break;
         /*unreachable*/case figure_type::invalid: std::abort();
     }//switch 

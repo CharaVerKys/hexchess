@@ -22,7 +22,7 @@ namespace lhc::protocol{
     };
 
     namespace payload{
-        struct peace{figure_type type; lhc::position position;};
+        struct peace{figure_type type; lhc::position position; figure_side side;};
         class allBoardPeaces{
             std::vector<peace> v;
           public:
