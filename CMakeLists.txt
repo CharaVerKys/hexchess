@@ -7,5 +7,6 @@ project(HexChess VERSION 0.1 LANGUAGES CXX)
 include(cmake/compile.cmake)
 include(cmake/qt.cmake)
 
+add_subdirectory(libhexchess)
 add_subdirectory(server)
 add_subdirectory(tests)

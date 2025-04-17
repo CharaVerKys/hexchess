@@ -9,3 +9,4 @@ add_executable(server
 ) # source list
 
 target_include_directories(server PRIVATE "src")
+target_link_libraries(server PRIVATE libhexchess)
