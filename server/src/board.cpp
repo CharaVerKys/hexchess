@@ -1,4 +1,6 @@
 #include "board.hpp"
+#include "figurespositions.hpp"
+#include "figures.hpp"
 
 Board Board::initBoard(Variant variant){
     assert(variant == Variant::default_);
@@ -80,4 +82,60 @@ void Board::initColors(std::array<Cell,91> field){
         }// for curent range
         ++curFirstColor;
     }
+}
+
+// ? function relate to: setWhiteFigures, setBlackFigures, and maybe other
+namespace details{
+    void setFiguresSameStyle(std::array<Cell,91>& field,std::map<figures_positions::position, Figure::type> const& figures){
+        auto ranges = Board::fieldRanges();
+        auto currentRange = ranges.begin();
+
+        for (std::uint8_t column =0; currentRange not_eq ranges.end(); ++column, ++currentRange) {
+            for(std::uint8_t row = 0; row < currentRange->take; ++row){
+                if(figures.contains({column,row})){
+                    Figure*& todoname = field.at(currentRange->drop + row).figure;
+                    assert(todoname == nullptr);
+                    //todo delete asserts
+                    assert(todoname = new figures::Bishop);
+                    assert(todoname);
+                    assert(field.at(currentRange->drop + row).figure);
+                    assert(field.at(currentRange->drop + row).figure == todoname);
+                    assert(field.at(currentRange->drop + row).figure->getType() == todoname->getType());
+                    delete todoname;
+                    todoname = nullptr;
+                    //todo ----
+                    switch (figures.at({column,row})) {
+                        case Figure::type::pawn:{
+                                todoname = new figures::Pawn;
+                        }break;
+                        case Figure::type::bishop:{
+                                todoname = new figures::Bishop;
+                        }break;
+                        case Figure::type::knight:{
+                                todoname = new figures::Knight;
+                        }break;
+                        case Figure::type::rook:{
+                                todoname = new figures::Rook;
+                        }break;
+                        case Figure::type::queen:{
+                                todoname = new figures::Queen;
+                        }break;
+                        case Figure::type::king:{
+                                todoname = new figures::King;
+                        }break;
+                        /*unreachable*/case Figure::type::invalid: std::abort();
+                    }//switch
+                }//if exist
+            }//row
+        }//col
+    }//function
+}
+
+void Board::setWhiteFigures(std::array<Cell,91>& field){
+    auto figures = figures_positions::getWhiteStandardPosition();
+    details::setFiguresSameStyle(field, figures);
+}
+void Board::setBlackFigures(std::array<Cell,91>& field){
+    auto figures = figures_positions::getBlackStandardPosition();
+    details::setFiguresSameStyle(field, figures);
 }
