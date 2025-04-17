@@ -32,6 +32,25 @@ Board::getColumn(std::uint8_t column){
     return *o_field | std::views::drop(pair.drop) | std::views::take(pair.take);
 }
 
+lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
+{
+    lhc::protocol::payload::allBoardPeaces allBoardPeaces;
+    std::vector<lhc::protocol::payload::peace> allPeaces;
+    auto ranges = lhc::field_ranges();
+    auto currentRange = ranges.begin();
+    for (std::uint8_t column =0; currentRange not_eq ranges.end(); ++column, ++currentRange) {
+        for(std::uint8_t row = 0; row < currentRange->take; ++row){
+            Figure const*const figure = o_field->at(currentRange->drop + row).figure;
+            if(figure not_eq nullptr){
+                allPeaces.emplace_back(figure->getType(), lhc::position{column,row});
+            }//if exist
+        }//row
+    }//col
+    assert(allPeaces.size() == 36);
+    allBoardPeaces.setPeaces(std::move(allPeaces));
+    return allBoardPeaces;
+}
+
 void Board::initColors(std::array<Cell,91>& field){
     auto ranges = lhc::field_ranges();
     auto curFirstColor = lhc::constants::firstColor.begin();
@@ -49,7 +68,7 @@ void Board::initColors(std::array<Cell,91>& field){
 
 // ? function relate to: setWhiteFigures, setBlackFigures, and maybe other
 namespace details{
-    void setFiguresSameStyle(std::array<Cell,91>& field,std::map<figures_positions::position, Figure::type> const& figures){
+    void setFiguresSameStyle(std::array<Cell,91>& field,std::map<figures_positions::position, figure_type> const& figures){
         auto ranges = lhc::field_ranges();
         auto currentRange = ranges.begin();
 
@@ -68,25 +87,25 @@ namespace details{
                     todoname = nullptr;
                     //todo ----
                     switch (figures.at({column,row})) {
-                        case Figure::type::pawn:{
+                        case figure_type::pawn:{
                                 todoname = new figures::Pawn;
                         }break;
-                        case Figure::type::bishop:{
+                        case figure_type::bishop:{
                                 todoname = new figures::Bishop;
                         }break;
-                        case Figure::type::knight:{
+                        case figure_type::knight:{
                                 todoname = new figures::Knight;
                         }break;
-                        case Figure::type::rook:{
+                        case figure_type::rook:{
                                 todoname = new figures::Rook;
                         }break;
-                        case Figure::type::queen:{
+                        case figure_type::queen:{
                                 todoname = new figures::Queen;
                         }break;
-                        case Figure::type::king:{
+                        case figure_type::king:{
                                 todoname = new figures::King;
                         }break;
-                        /*unreachable*/case Figure::type::invalid: std::abort();
+                        /*unreachable*/case figure_type::invalid: std::abort();
                     }//switch
                 }//if exist
             }//row

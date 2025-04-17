@@ -11,6 +11,22 @@ enum class Color : std::uint8_t{
     third,
 };
 
+enum class figure_type : std::int8_t{
+    invalid = -1,
+    pawn    =  0,
+    bishop  =  1,
+    knight  =  2,
+    rook    =  3,
+    queen   =  4,
+    king    =  5,
+};
+
+namespace lhc{
+    struct position{
+        std::uint8_t column;
+        std::uint8_t row;
+    };
+}
 
 namespace lhc::color{
     inline void next(Color/*mut*/& curColor){

@@ -5,22 +5,22 @@
 namespace figures{
 
 class Pawn : public Figure{
-    type getType() override{return type::pawn;}
+    figure_type getType() const override{return figure_type::pawn;}
 };
 class Bishop : public Figure{
-    type getType() override{return type::bishop;}
+    figure_type getType() const override{return figure_type::bishop;}
 };
 class Knight : public Figure{
-    type getType() override{return type::knight;}
+    figure_type getType() const override{return figure_type::knight;}
 };
 class Rook : public Figure{
-    type getType() override{return type::rook;}
+    figure_type getType() const override{return figure_type::rook;}
 };
 class Queen : public Figure{
-    type getType() override{return type::queen;}
+    figure_type getType() const override{return figure_type::queen;}
 };
 class King : public Figure{
-    type getType() override{return type::king;}
+    figure_type getType() const override{return figure_type::king;}
 };
 
 }

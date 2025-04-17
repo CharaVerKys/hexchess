@@ -1,5 +1,6 @@
 #pragma once
 
+#include "protocol.hpp"
 #include <generator.hpp>
 #include <array>
 #include <cassert>
@@ -22,6 +23,8 @@ public:
     [[nodiscard]] // readable type in cpp
     std::ranges::take_view<std::ranges::drop_view<std::ranges::ref_view<std::array<Cell,91>>>>
     getColumn(std::uint8_t column);
+
+    lhc::protocol::payload::allBoardPeaces getAllPeaces();
 
 private:
     Board(){}

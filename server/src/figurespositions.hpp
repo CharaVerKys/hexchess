@@ -16,58 +16,58 @@ struct figures_positions {
         }
     };
     // todo make it consteval
-    static std::map<position,Figure::type> getWhiteStandardPosition(){
-        std::map<position,Figure::type> figures = 
+    static std::map<position,figure_type> getWhiteStandardPosition(){
+        std::map<position,figure_type> figures = 
         {
-            {{1,6},Figure::type::pawn},
-            {{2,6},Figure::type::pawn},
-            {{3,6},Figure::type::pawn},
-            {{4,6},Figure::type::pawn},
-            {{5,6},Figure::type::pawn},
-            {{6,6},Figure::type::pawn},
-            {{7,6},Figure::type::pawn},
-            {{8,6},Figure::type::pawn},
-            {{9,6},Figure::type::pawn},
+            {{1,6},figure_type::pawn},
+            {{2,6},figure_type::pawn},
+            {{3,6},figure_type::pawn},
+            {{4,6},figure_type::pawn},
+            {{5,6},figure_type::pawn},
+            {{6,6},figure_type::pawn},
+            {{7,6},figure_type::pawn},
+            {{8,6},figure_type::pawn},
+            {{9,6},figure_type::pawn},
 
-            {{2,7},Figure::type::rook},
-            {{3,8},Figure::type::knight},
-            {{4,9},Figure::type::queen},
+            {{2,7},figure_type::rook},
+            {{3,8},figure_type::knight},
+            {{4,9},figure_type::queen},
 
-            {{5,8},Figure::type::bishop},
-            {{5,9},Figure::type::bishop},
-            {{5,10},Figure::type::bishop},
+            {{5,8},figure_type::bishop},
+            {{5,9},figure_type::bishop},
+            {{5,10},figure_type::bishop},
 
-            {{6,9},Figure::type::king},
-            {{7,8},Figure::type::knight},
-            {{8,7},Figure::type::rook},
+            {{6,9},figure_type::king},
+            {{7,8},figure_type::knight},
+            {{8,7},figure_type::rook},
         };
 
         return figures;
     }
-    static std::map<position,Figure::type> getBlackStandardPosition(){
-        std::map<position,Figure::type> figures = 
+    static std::map<position,figure_type> getBlackStandardPosition(){
+        std::map<position,figure_type> figures = 
         {
-            {{1,0},Figure::type::pawn},
-            {{2,1},Figure::type::pawn},
-            {{3,2},Figure::type::pawn},
-            {{4,3},Figure::type::pawn},
-            {{5,4},Figure::type::pawn},
-            {{6,3},Figure::type::pawn},
-            {{7,2},Figure::type::pawn},
-            {{8,1},Figure::type::pawn},
-            {{9,0},Figure::type::pawn},
+            {{1,0},figure_type::pawn},
+            {{2,1},figure_type::pawn},
+            {{3,2},figure_type::pawn},
+            {{4,3},figure_type::pawn},
+            {{5,4},figure_type::pawn},
+            {{6,3},figure_type::pawn},
+            {{7,2},figure_type::pawn},
+            {{8,1},figure_type::pawn},
+            {{9,0},figure_type::pawn},
 
-            {{2,0},Figure::type::rook},
-            {{3,0},Figure::type::knight},
-            {{4,0},Figure::type::queen},
+            {{2,0},figure_type::rook},
+            {{3,0},figure_type::knight},
+            {{4,0},figure_type::queen},
 
-            {{5,0},Figure::type::bishop},
-            {{5,1},Figure::type::bishop},
-            {{5,2},Figure::type::bishop},
+            {{5,0},figure_type::bishop},
+            {{5,1},figure_type::bishop},
+            {{5,2},figure_type::bishop},
 
-            {{6,0},Figure::type::king},
-            {{7,0},Figure::type::knight},
-            {{8,0},Figure::type::rook},
+            {{6,0},figure_type::king},
+            {{7,0},figure_type::knight},
+            {{8,0},figure_type::rook},
         };
 
         return figures;
