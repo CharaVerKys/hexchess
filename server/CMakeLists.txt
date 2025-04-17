@@ -6,6 +6,7 @@ add_executable(server
     ${log_cpp_file} 
     "src/main.cpp"
     "src/board.cpp"
+    "src/movement.cpp"
 ) # source list
 
 target_include_directories(server PRIVATE "src")

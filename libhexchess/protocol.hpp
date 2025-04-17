@@ -29,5 +29,12 @@ namespace lhc::protocol{
             // void parseFromStream(std::span<std::byte,1000>);
             // std::vector<std::byte> convertToStream();
         };
+    
+        struct peace_move{
+            lhc::position from;
+            figure_type ver_type;
+            figure_side ver_side;
+            lhc::position to;
+        };
     }
 }
