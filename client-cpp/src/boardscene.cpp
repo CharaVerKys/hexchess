@@ -22,8 +22,41 @@ BoardSceneWidget::BoardSceneWidget(QWidget* parent)
 
 void BoardSceneWidget::setAllPeaces(std::vector<lhc::protocol::payload::peace> const& initialPeaces){
     for(auto const& peace : initialPeaces){
-        setPeace(peace.type, peace.position, peace.side);
+        setPeace_private(peace.type, peace.position, peace.side);
     }
+}
+
+void BoardSceneWidget::deletePeace(lhc::position pos, figure_type type, figure_side side){
+    auto& cell = getCellAt(pos);
+    assert(cell.peace->type == type);
+    assert(cell.peace->side == side);
+    cell.peace = std::nullopt;
+}
+
+void BoardSceneWidget::setPeace(lhc::position pos, figure_type type, figure_side side){
+    setPeace_private(type, pos, side);
+}
+
+HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPolygonItem*ptr){
+    assert(ptr);
+    for(HexAndPeace const& cell : *allCells){
+        if(ptr == cell.hex){
+            return cell;
+        }
+    }
+    std::abort();
+}
+
+HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPixmapItem*ptr){
+    assert(ptr);
+    for(HexAndPeace const& cell : *allCells){
+        if(cell.peace.has_value()){
+            if(ptr == cell.peace->item.get()){
+                return cell;
+            }
+        }
+    }
+    std::abort();
 }
 
 QPolygonF BoardSceneWidget::createHexagon(double x, double y){
@@ -66,26 +99,11 @@ void BoardSceneWidget::initAllCells(){
             lhc::color::next(curColor);
             QPolygonF hex = createHexagon(currentX, std::sqrt(3) / 2 * hex_size * 2 * (currentRow+skipForGridLogic[currentColumn]) + (currentColumn%2 * sqrt(3)/2*hex_size));
             QGraphicsPolygonItem* item = scene->addPolygon(hex, QPen(Qt::black), brushColor);
-            allCells->at(indexInAllCells) = {item,std::nullopt};
+            allCells->at(indexInAllCells) = {item,std::nullopt,{currentColumn,currentRow}};
             ++indexInAllCells;
         }
         ++curFirstColor;
     }
-}
-
-void BoardSceneWidget::setPeace(figure_type const& type, lhc::position const& pos, figure_side const& side){
-    HexAndPeace& cell = getCellAt(pos);
-    GraphicPeace peace{getPeaceGraphicItem(type,side),type,pos,side};
-
-    QPointF center = cell.hex->boundingRect().center();
-    center = cell.hex->mapToScene(center); // переводим в координаты сцены
-    peace.item->setOffset(
-        center.x() - static_cast<float>(peace.item->pixmap().width()  )/2,
-        center.y() - static_cast<float>(peace.item->pixmap().height() )/2
-    );
-    scene->addItem(peace.item.get());
-
-    cell.peace = std::move(peace);
 }
 
 bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
@@ -96,14 +114,36 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
             auto *hex = qgraphicsitem_cast<QGraphicsPolygonItem*>(hits.first());
             auto *pix = qgraphicsitem_cast<QGraphicsPixmapItem*>(hits.first());
             if (hex) {
-                qDebug() << "hex";
+                auto& cell = findCellByGraphItem(hex);
+                if(cell.peace){
+                    emit clicked(cell.position, cell.peace->type, cell.peace->side);
+                }else{
+                    emit clicked(cell.position, std::nullopt, std::nullopt);
+                }
             }
             if (pix) {
-                qDebug() << "pix";
+                auto& cell = findCellByGraphItem(pix);
+                emit clicked(cell.position, cell.peace->type, cell.peace->side);
             }
         }
     }
     return QWidget::eventFilter(obj, ev);
+}
+
+void BoardSceneWidget::setPeace_private(figure_type const& type, lhc::position const& pos, figure_side const& side){
+    HexAndPeace& cell = getCellAt(pos);
+    assert(cell.peace == std::nullopt);
+    GraphicPeace peace{getPeaceGraphicItem(type,side),type,side};
+
+    QPointF center = cell.hex->boundingRect().center();
+    center = cell.hex->mapToScene(center); // переводим в координаты сцены
+    peace.item->setOffset(
+        center.x() - static_cast<float>(peace.item->pixmap().width()  )/2,
+        center.y() - static_cast<float>(peace.item->pixmap().height() )/2
+    );
+    scene->addItem(peace.item.get());
+
+    cell.peace = std::move(peace);
 }
 
 HexAndPeace& BoardSceneWidget::getCellAt(lhc::position const& pos){
