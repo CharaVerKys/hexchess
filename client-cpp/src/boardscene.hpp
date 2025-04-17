@@ -14,7 +14,7 @@ public:
     void setAllPeaces(std::vector<lhc::protocol::payload::peace> const& initialPeaces);
 
 signals:
-    void clicked(lhc::position, std::optional<figure_type>, std::optional<figure_side>);
+    void clicked(std::optional<lhc::position>, std::optional<figure_type>, std::optional<figure_side>);
 public slots:
     void deletePeace(lhc::position, figure_type, figure_side);
     void setPeace(lhc::position, figure_type, figure_side);

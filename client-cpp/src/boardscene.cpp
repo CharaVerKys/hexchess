@@ -114,6 +114,7 @@ void BoardSceneWidget::initAllCells(){
 
 bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
     if (obj == scene && ev->type() == QEvent::GraphicsSceneMousePress) {
+        bool clickWasOnCell = false;
         if(oldColor){
             oldColor->first->setBrush(oldColor->second);
         } 
@@ -123,6 +124,7 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
             auto *hex = qgraphicsitem_cast<QGraphicsPolygonItem*>(hits.first());
             auto *pix = qgraphicsitem_cast<QGraphicsPixmapItem*>(hits.first());
             if (hex) {
+                clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(hex);
                 if(cell.peace){
                     emit clicked(cell.position, cell.peace->type, cell.peace->side);
@@ -131,11 +133,15 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
                 }
                 colorizeCell(cell.hex);
             }
-            if (pix) {
+            else if (pix) {
+                clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(pix);
                 emit clicked(cell.position, cell.peace->type, cell.peace->side);
                 colorizeCell(cell.hex);
             }
+        }
+        if(not clickWasOnCell){
+            emit clicked(std::nullopt,std::nullopt,std::nullopt);
         }
     }
     return QWidget::eventFilter(obj, ev);
