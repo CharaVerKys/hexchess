@@ -14,6 +14,9 @@ namespace movement{
         if(not pathToCheck){
             return disallowAction;
         }
+        if(not seqClearToDo(board, *pathToCheck)){
+            return disallowAction;
+        }
 
         // test is there no any peaces in front of figure (except pawn)
         
@@ -22,6 +25,17 @@ namespace movement{
         return allowAction;
         std::abort();
     }
+
+    bool seqClearToDo(Board& board, std::vector<lhc::position> const& toTest){
+        int max = std::max(int(toTest.size())-1,0);
+        for(auto& pos : std::views::take(toTest,max)){
+            if(board.isAnyPeaceAt(pos)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     namespace details{
         bool isValidSideAndType(Board& b, lhc::position const& p, figure_type const& t, figure_side const& s){
             auto column = b.getColumn(p.column);
@@ -361,7 +375,9 @@ namespace movement{
                 if(not result){
                     return std::nullopt;
                 }
-                if(std::ranges::find(*result,to) not_eq result->end()){
+                std::ranges::reverse(*result);
+                if (auto it = std::ranges::find(*result, to); it not_eq result->end()) {
+                    result->erase(std::next(it), result->end());
                     return *result;
                 }else{
                     return std::nullopt;

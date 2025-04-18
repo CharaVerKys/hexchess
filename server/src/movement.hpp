@@ -10,6 +10,7 @@ enum moveResult : std::int8_t{
 
 namespace movement{
     moveResult entryMove(Board&, lhc::protocol::payload::peace_move const&);
+    bool seqClearToDo(Board&, std::vector<lhc::position> const& toTest);
     namespace details{
         bool isValidSideAndType(Board&, lhc::position const&, figure_type const&, figure_side const&);
         // ? return type is path to check is possible for figure, nullopt means figure cant more to given position
