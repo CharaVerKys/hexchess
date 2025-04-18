@@ -6,25 +6,16 @@ namespace movement{
         if(not details::isValidSideAndType(board, move_.from, move_.ver_type, move_.ver_side)){
             return disallowAction;
         }
-        if(not details::isValidFigureMove(board, move_.from, move_.ver_type, move_.to, move_.ver_side)){
+        std::optional<std::vector<lhc::position>> pathToCheck = 
+        details::isValidFigureMove(board, move_.from, move_.ver_type, move_.to, move_.ver_side);
+        if(not pathToCheck){
             return disallowAction;
         }
 
         // test is there no any peaces in front of figure (except pawn)
         
         board.movePeace(move_.from, move_.to);
-        if(move_.ver_type == figure_type::pawn){
-            if(move_.ver_side == figure_side::white){
-                if(move_.to.row == 0){
-                    board.promoteToQueen(move_.to);
-                }
-            }else{
-                const std::array<std::uint8_t,11> boardEdge = {5,6,7,8,9,10,9,8,7,6,5};
-                if(move_.to.row == boardEdge.at(move_.to.column)){
-                    board.promoteToQueen(move_.to);
-                }
-            }
-        }
+        details::checkPromoting(board, move_.to, move_.ver_type, move_.ver_side);
         return allowAction;
         std::abort();
     }
@@ -34,10 +25,15 @@ namespace movement{
             Cell* cell = std::ranges::next(column.begin(),p.row);
             return cell->figure and cell->figure->getType() == t and cell->figure->getSide() == s;
         }
-        bool isValidFigureMove(Board& board, lhc::position const& from, figure_type const& type, lhc::position const& to, figure_side const& side){
+        std::optional<std::vector<lhc::position>> isValidFigureMove(Board& board, lhc::position const& from, figure_type const& type, lhc::position const& to, figure_side const& side){
+            std::vector<lhc::position> returnType_pathToCheck;
             switch(type){
                 case figure_type::pawn:{
-                    return isValidPawnMove(board, from, to, side);
+                    if(isValidPawnMove(board, from, to, side)){
+                        return returnType_pathToCheck;
+                    }else{
+                        return std::nullopt;
+                    }
                 }break;
                 case figure_type::bishop:{
                     
@@ -146,5 +142,20 @@ namespace movement{
             }// if abs
             return false; // all other path
         }// is valid pawn move
+
+        void checkPromoting(Board& board, lhc::position const& pos, figure_type const& type, figure_side const& side){
+            if(type == figure_type::pawn){
+                if(side == figure_side::white){
+                    if(pos.row == 0){
+                        board.promoteToQueen(pos);
+                    }
+                }else{
+                    const std::array<std::uint8_t,11> boardEdge = {5,6,7,8,9,10,9,8,7,6,5};
+                    if(pos.row == boardEdge.at(pos.column)){
+                        board.promoteToQueen(pos);
+                    }
+                }
+            }
+        }// promoting
     }//nms details
 }
