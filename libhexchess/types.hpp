@@ -1,7 +1,9 @@
 #pragma once
 
+#include <compare>
 #include <cstdint>
 #include <cstdlib>
+#include <ostream>
 
 // ? no nms
 enum class Color : std::uint8_t{
@@ -32,6 +34,17 @@ namespace lhc{
     struct position{
         std::uint8_t column;
         std::uint8_t row;
+        std::strong_ordering operator<=>(position const& other) const noexcept{
+            if(column <=> other.column not_eq std::strong_ordering::equal){return column <=> other.column;}
+            return row <=> other.row;
+        }
+        friend std::ostream& operator<<(std::ostream& stream, lhc::position const& pos) noexcept{
+            stream << "{"<< int(pos.column) << ", " << int(pos.row) <<"}";
+            return stream;
+        }
+        bool operator==(position const& other) const noexcept{
+            return other <=> *this == std::strong_ordering::equal;
+        }
     };
 }
 

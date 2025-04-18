@@ -24,6 +24,7 @@ public:
     std::ranges::take_view<std::ranges::drop_view<std::ranges::ref_view<std::array<Cell,91>>>>
     getColumn(std::uint8_t column);
     bool isAnyPeaceAt(lhc::position const&);
+    Color colorOfCell(lhc::position const&);
     void movePeace(lhc::position const&, lhc::position const&);
     void promoteToQueen(lhc::position const&);
 

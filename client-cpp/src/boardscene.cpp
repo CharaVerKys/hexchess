@@ -35,6 +35,10 @@ void BoardSceneWidget::deletePeace(lhc::position pos, figure_type type, figure_s
 
 void BoardSceneWidget::setPeace(lhc::position pos, figure_type type, figure_side side){
     setPeace_private(type, pos, side);
+    if(oldColor){
+        oldColor->first->setBrush(oldColor->second);
+        oldColor = std::nullopt;
+    } 
 }
 
 void BoardSceneWidget::colorizeCell(QGraphicsPolygonItem* item){
@@ -117,6 +121,7 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
         bool clickWasOnCell = false;
         if(oldColor){
             oldColor->first->setBrush(oldColor->second);
+            oldColor = std::nullopt;
         } 
         auto* me = static_cast<QGraphicsSceneMouseEvent*>(ev);
         auto hits = scene->items(me->scenePos());
@@ -126,18 +131,18 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
             if (hex) {
                 clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(hex);
+                colorizeCell(cell.hex);
                 if(cell.peace){
                     emit clicked(cell.position, cell.peace->type, cell.peace->side);
                 }else{
                     emit clicked(cell.position, std::nullopt, std::nullopt);
                 }
-                colorizeCell(cell.hex);
             }
             else if (pix) {
                 clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(pix);
-                emit clicked(cell.position, cell.peace->type, cell.peace->side);
                 colorizeCell(cell.hex);
+                emit clicked(cell.position, cell.peace->type, cell.peace->side);
             }
         }
         if(not clickWasOnCell){

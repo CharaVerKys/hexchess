@@ -37,6 +37,13 @@ bool Board::isAnyPeaceAt(lhc::position const& pos){
     assert(column.size() > pos.row);
     return std::ranges::next(column.begin(),pos.row)->figure not_eq nullptr;
 }
+
+Color Board::colorOfCell(lhc::position const& pos){
+    auto column = getColumn(pos.column);
+    assert(column.size() > pos.row);
+    return std::ranges::next(column.begin(),pos.row)->color;
+}
+
 void Board::movePeace(lhc::position const& from, lhc::position const& to){
     auto column = getColumn(from.column);
     assert(column.size() > from.row);
@@ -71,7 +78,7 @@ lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
             }//if exist
         }//row
     }//col
-    assert(allPeaces.size() == 36);
+    // assert(allPeaces.size() == 36);
     allBoardPeaces.setPeaces(std::move(allPeaces));
     return allBoardPeaces;
 }
