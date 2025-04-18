@@ -32,6 +32,31 @@ Board::getColumn(std::uint8_t column){
     return *o_field | std::views::drop(pair.drop) | std::views::take(pair.take);
 }
 
+bool Board::isAnyPeaceAt(lhc::position const& pos){
+    auto column = getColumn(pos.column);
+    assert(column.size() > pos.row);
+    return std::ranges::next(column.begin(),pos.row)->figure not_eq nullptr;
+}
+void Board::movePeace(lhc::position const& from, lhc::position const& to){
+    auto column = getColumn(from.column);
+    assert(column.size() > from.row);
+    auto peaceToMove = std::move(std::ranges::next(column.begin(),from.row)->figure);
+    assert(std::ranges::next(column.begin(),from.row)->figure == nullptr);
+
+    column = getColumn(to.column);
+    assert(column.size() > to.row);
+    std::ranges::next(column.begin(),to.row)->figure = std::move(peaceToMove);
+}
+
+void Board::promoteToQueen(lhc::position const& where){
+    auto column = getColumn(where.column);
+    assert(column.size() > where.row);
+    assert(std::ranges::next(column.begin(),where.row)->figure->getType() == figure_type::pawn);
+    figure_side side = std::ranges::next(column.begin(),where.row)->figure->getSide();
+    std::ranges::next(column.begin(),where.row)->figure = std::make_unique<figures::Queen>(side);
+    assert(std::ranges::next(column.begin(),where.row)->figure->getType() == figure_type::queen);
+}
+
 lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
 {
     lhc::protocol::payload::allBoardPeaces allBoardPeaces;
@@ -40,7 +65,7 @@ lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
     auto currentRange = ranges.begin();
     for (std::uint8_t column =0; currentRange not_eq ranges.end(); ++column, ++currentRange) {
         for(std::uint8_t row = 0; row < currentRange->take; ++row){
-            Figure const*const figure = o_field->at(currentRange->drop + row).figure;
+            auto const& figure = o_field->at(currentRange->drop + row).figure;
             if(figure not_eq nullptr){
                 allPeaces.emplace_back(figure->getType(), lhc::position{column,row}, figure->getSide());
             }//if exist
@@ -75,26 +100,27 @@ namespace details{
         for (std::uint8_t column =0; currentRange not_eq ranges.end(); ++column, ++currentRange) {
             for(std::uint8_t row = 0; row < currentRange->take; ++row){
                 if(figures.contains({column,row})){
-                    Figure*& todoname = field.at(currentRange->drop + row).figure;
-                    assert(todoname == nullptr);
-                    switch (figures.at({column,row})) {
-                        case figure_type::pawn:{
-                                todoname = new figures::Pawn(side);
+                  std::unique_ptr<Figure> &todoname = field.at(currentRange->drop + row).figure;
+                  assert(todoname == nullptr);
+                  switch (figures.at({column, row})) {
+                  case figure_type::pawn: {
+                    todoname = std::make_unique<figures::Pawn>(
+                        side); // new figures::Pawn(side);
                         }break;
                         case figure_type::bishop:{
-                                todoname = new figures::Bishop(side);
+                                todoname = std::make_unique<figures::Bishop>(side);//new figures::Bishop(side);
                         }break;
                         case figure_type::knight:{
-                                todoname = new figures::Knight(side);
+                                todoname = std::make_unique<figures::Knight>(side);//new figures::Knight(side);
                         }break;
                         case figure_type::rook:{
-                                todoname = new figures::Rook(side);
+                                todoname = std::make_unique<figures::Rook>(side);//new figures::Rook(side);
                         }break;
                         case figure_type::queen:{
-                                todoname = new figures::Queen(side);
+                                todoname = std::make_unique<figures::Queen>(side);//new figures::Queen(side);
                         }break;
                         case figure_type::king:{
-                                todoname = new figures::King(side);
+                                todoname = std::make_unique<figures::King>(side);//new figures::King(side);
                         }break;
                         /*unreachable*/case figure_type::invalid: std::abort();
                     }//switch

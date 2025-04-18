@@ -1,10 +1,10 @@
 #pragma once
 
-#include <types.hpp>
+#include "figure.hpp"
+#include <memory>
 
-class Figure;
 
 struct Cell{
-    Figure* figure = nullptr;
+    std::unique_ptr<Figure> figure = nullptr;
     Color color{Color::invalid};
 };

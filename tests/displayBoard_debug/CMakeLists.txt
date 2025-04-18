@@ -6,6 +6,7 @@ add_executable(displayBoard_debug
     displayBoard.cpp
     "${CMAKE_SOURCE_DIR}/server/src/board.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/boardscene.cpp"
+    "${CMAKE_SOURCE_DIR}/server/src/movement.cpp"
     )
 target_include_directories(displayBoard_debug PRIVATE "${CMAKE_SOURCE_DIR}/server/src")
 target_include_directories(displayBoard_debug PRIVATE "${CMAKE_SOURCE_DIR}/client-cpp/src")
