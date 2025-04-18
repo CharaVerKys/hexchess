@@ -64,9 +64,9 @@ int main(int argc, char *argv[]) {
                 }
                 // promote to queen
                 pw->setPeace(*pos, tFrom, sFrom);
-                tFrom = figure_type::invalid;
-                sFrom = figure_side::invalid;
             }
+            tFrom = figure_type::invalid;
+            sFrom = figure_side::invalid;
         }
     });
 

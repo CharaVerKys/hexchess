@@ -56,7 +56,7 @@ namespace movement{
                     return isValidBishopMove(board,from,to);
                 }break;
                 case figure_type::knight:{
-                    
+                    return isValidKnightMove(from,to);
                 }break;
                 case figure_type::rook:{
                     
@@ -385,5 +385,163 @@ namespace movement{
             }
 
         } //nms bishop
+
+        std::optional<std::vector<lhc::position>> isValidKnightMove(lhc::position const& from, lhc::position const& to){
+            bool valid{
+                knight::testRightTop(from, to) or
+                knight::testLeftBot(from, to) or
+                knight::testRightBot(from, to) or
+                knight::testLeftTop(from, to) or
+                knight::testRight(from, to) or
+                knight::testLeft(from, to) 
+            };
+            if(valid){
+                return {{}};
+            }else{
+                return std::nullopt;
+            }
+        }
+        namespace knight{
+            bool testRightTop(lhc::position const& from, lhc::position const& to){
+                if(from.column+1 == to.column){
+                    if(from.column >= 5){
+                        return from.row == to.row+3;
+                    }
+                    if(from.column < 5){
+                        return from.row == to.row+2;
+                    }
+                }
+
+                if(from.column == 4 and to.column == 6){
+                    return from.row == to.row+2;
+                }
+                if(from.column +2 == to.column){
+                    if(from.column < 4){
+                        return from.row == to.row+1;
+                    }
+                    if(from.column >= 5){
+                        return from.row == to.row+3;
+                    }
+                }
+                return false;
+            }
+            bool testLeftBot(lhc::position const& from, lhc::position const& to){
+                if(from.column-1 == to.column){
+                    if(from.column >5){
+                        return from.row == to.row-3;
+                    }
+                    if(from.column <= 5){
+                        return from.row == to.row-2;
+                    }
+                }
+
+                if(from.column == 6 and to.column == 4){
+                    return from.row == to.row-2;
+                }
+                if(from.column -2 == to.column){
+                    if(from.column > 5){
+                        return from.row == to.row-3;
+                    }
+                    if(from.column <= 5){
+                        return from.row == to.row-1;
+                    }
+                }
+                return false;
+            }
+            bool testRightBot(lhc::position const& from, lhc::position const& to){
+                if(from.column+1 == to.column){
+                    if(from.column < 5){
+                        return from.row == to.row-3;
+                    }
+                    if(from.column >= 5){
+                        return from.row == to.row-2;
+                    }
+                }
+
+                if(from.column == 4 and to.column == 6){
+                    return from.row == to.row-2;
+                }
+                if(from.column +2 == to.column){
+                    if(from.column < 4){
+                        return from.row == to.row-3;
+                    }
+                    if(from.column >= 5){
+                        return from.row == to.row-1;
+                    }
+                }
+                return false;
+
+            }
+            bool testLeftTop(lhc::position const& from, lhc::position const& to){
+                if(from.column-1 == to.column){
+                    if(from.column >5){
+                        return from.row == to.row+2;
+                    }
+                    if(from.column <= 5){
+                        return from.row == to.row+3;
+                    }
+                }
+
+                if(from.column == 6 and to.column == 4){
+                    return from.row == to.row+2;
+                }
+                if(from.column -2 == to.column){
+                    if(from.column < 5){
+                        return from.row == to.row+3;
+                    }
+                    if(from.column >= 5){
+                        return from.row == to.row+1;
+                    }
+                }
+                return false;
+            }
+            bool testRight(lhc::position const& from, lhc::position const& to){
+                if(from.column+3 == to.column){
+                    if(from.column == 5){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column == 4 and to.column == 7){
+                        return (from.row == to.row+1) or (from.row == to.row);
+                    }
+                    if(from.column == 3 and to.column == 6){
+                        return (from.row == to.row-1) or (from.row == to.row);
+                    }
+                    if(from.column == 7 and to.column == 10){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column == 6 and to.column == 9){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column <= 2){
+                        return (from.row == to.row-1) or (from.row == to.row-2);
+                    }
+                }
+                return false;
+            }
+            bool testLeft(lhc::position const& from, lhc::position const& to){
+                if(from.column-3 == to.column){
+                    if(from.column == 5){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column == 6 and to.column == 3){
+                        return (from.row == to.row+1) or (from.row == to.row);
+                    }
+                    if(from.column == 7 and to.column == 4){
+                        return (from.row == to.row-1) or (from.row == to.row);
+                    }
+                    if(from.column == 3 and to.column == 0){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column == 4 and to.column == 1){
+                        return (from.row == to.row+1) or (from.row == to.row+2);
+                    }
+                    if(from.column >= 8){
+                        return (from.row == to.row-1) or (from.row == to.row-2);
+                    }
+                }
+                return false;
+            }
+
+        }//nms knight
     }//nms details
 }

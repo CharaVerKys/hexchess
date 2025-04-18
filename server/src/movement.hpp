@@ -32,5 +32,14 @@ namespace movement{
             std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from);
             std::optional<std::vector<lhc::position>> tryRunTo(direction const&, lhc::position const& from, lhc::position const& to);
         }
+        std::optional<std::vector<lhc::position>> isValidKnightMove(lhc::position const& from, lhc::position const& to);
+        namespace knight{
+            bool testRightTop(lhc::position const& from, lhc::position const& to);
+            bool testLeftBot(lhc::position const& from, lhc::position const& to);
+            bool testRightBot(lhc::position const& from, lhc::position const& to);
+            bool testLeftTop(lhc::position const& from, lhc::position const& to);
+            bool testRight(lhc::position const& from, lhc::position const& to);
+            bool testLeft(lhc::position const& from, lhc::position const& to);
+        }
     }
 }
