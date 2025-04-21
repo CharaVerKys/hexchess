@@ -59,10 +59,13 @@ namespace movement{
                     return isValidKnightMove(from,to);
                 }break;
                 case figure_type::rook:{
-                    
+                    return isValidRookMove(board, from,to);
                 }break;
                 case figure_type::queen:{
-                    
+                    if(auto res = isValidRookMove(board, from,to); res){
+                        return res;
+                    }
+                    return isValidBishopMove(board,from,to);
                 }break;
                 case figure_type::king:{
                     
@@ -175,6 +178,17 @@ namespace movement{
             }
         }// promoting
 
+        std::unique_ptr<std::vector<lhc::position>> addToPath(std::unique_ptr<std::vector<lhc::position>>&& nextSteps, lhc::position const& nextStep){
+            if(nextSteps){
+                nextSteps->push_back(nextStep);
+                return nextSteps;
+            }else{
+                auto ptr = std::make_unique<std::vector<lhc::position>>();
+                ptr->push_back(nextStep);
+                return ptr;
+            }
+        }
+        
         std::optional<std::vector<lhc::position>> isValidBishopMove(Board& board, lhc::position const& from, lhc::position const& to){
             if(board.colorOfCell(from) not_eq board.colorOfCell(to)){
                 return std::nullopt;
@@ -223,16 +237,6 @@ namespace movement{
                 std::abort();
             }// make one move in dir
 
-            std::unique_ptr<std::vector<lhc::position>> addToPath(std::unique_ptr<std::vector<lhc::position>>&& nextSteps, lhc::position const& nextStep){
-                if(nextSteps){
-                    nextSteps->push_back(nextStep);
-                    return nextSteps;
-                }else{
-                    auto ptr = std::make_unique<std::vector<lhc::position>>();
-                    ptr->push_back(nextStep);
-                    return ptr;
-                }
-            }
 
             std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight(direction const& dir, lhc::position const& from){
                 if(from.column < 4){
@@ -383,7 +387,6 @@ namespace movement{
                     return std::nullopt;
                 }
             }
-
         } //nms bishop
 
         std::optional<std::vector<lhc::position>> isValidKnightMove(lhc::position const& from, lhc::position const& to){
@@ -543,5 +546,125 @@ namespace movement{
             }
 
         }//nms knight
+
+        std::optional<std::vector<lhc::position>> isValidRookMove(Board& board, lhc::position const& from, lhc::position const& to){
+            if(from.column == to.column){
+                std::size_t columnSize = board.getColumn(from.column).size();
+                std::vector<lhc::position> moves;
+                if(from.row > to.row){
+                    // beeing signed critical because count down
+                    for(std::int8_t it = from.row-1;it >= to.row; --it){
+                        moves.emplace_back(from.column,it);
+                    }
+                }else{
+                    for(std::uint8_t it = from.row+1;it <= to.row and to.row < columnSize; ++it){
+                        moves.emplace_back(from.column,it);
+                    }
+                }
+                if(not moves.empty()){
+                    return moves;
+                }else{
+                    return std::nullopt;
+                }
+            }else if(from.column > to.column){
+                auto left_top = rook::tryRunTo(rook::left_top,from,to);
+                auto left_bot = rook::tryRunTo(rook::left_bot,from,to);
+                auto path = left_top ? left_top : (left_bot ? left_bot : std::nullopt);
+                return path;
+            }else{
+                auto right_top = rook::tryRunTo(rook::right_top,from,to);
+                auto right_bot = rook::tryRunTo(rook::right_bot,from,to);
+                auto path = right_top ? right_top : (right_bot ? right_bot : std::nullopt);
+                return path;
+            }
+        }
+        namespace rook{
+            std::unique_ptr<std::vector<lhc::position>> makeOneMoveInDirection(direction const& dir, lhc::position const& from){
+                switch (dir) {
+                    case right_top:{
+                        return imp_makeOneMoveInDirection_toRight_top(dir, from);
+                    }break;
+                    case right_bot:{
+                        return imp_makeOneMoveInDirection_toRight_bot(dir, from);
+                    }break;
+                    case left_top:{
+                        return imp_makeOneMoveInDirection_toLeft_top(dir, from);
+                    }break;
+                    case left_bot:{
+                        return imp_makeOneMoveInDirection_toLeft_bot(dir, from);
+                    }break;
+                }
+                std::abort();
+            }
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from){
+                if(from.column < 5){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }else if(from.column < 10){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row-1)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }
+                return nullptr;
+            }
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from){
+                if(from.column < 5){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row+1)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }else if(from.column < 10){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }
+                return nullptr;
+            }
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from){
+                if(from.column >= 11){return nullptr;}
+                if(from.column > 5){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(from.row)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }else if(from.column > 0){
+                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(from.row-1)};
+                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                    return addToPath(std::move(nextSteps), nextStep);
+                }
+                return nullptr;
+            }
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from){
+                const std::array<std::uint8_t,10> maxSize = {6,7,8,9,10,11,10,9,8,7};
+                std::uint8_t newRow;
+                assert(from.column < 11);
+                if(from.column == 0){
+                    return nullptr;
+                }
+                if(from.column <= 5){
+                    newRow = from.row;
+                }else{
+                    newRow = from.row+1;
+                }
+                if(newRow >= maxSize.at(newRow)){
+                    return nullptr;
+                }
+                lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(newRow)};
+                auto nextSteps = makeOneMoveInDirection(dir, nextStep);
+                return addToPath(std::move(nextSteps), nextStep);
+            }
+            std::optional<std::vector<lhc::position>> tryRunTo(direction const& dir, lhc::position const& from, lhc::position const& to){
+                std::unique_ptr<std::vector<lhc::position>> result = makeOneMoveInDirection(dir, from);
+                if(not result){
+                    return std::nullopt;
+                }
+                std::ranges::reverse(*result);
+                if (auto it = std::ranges::find(*result, to); it not_eq result->end()) {
+                    result->erase(std::next(it), result->end());
+                    return *result;
+                }else{
+                    return std::nullopt;
+                }
+            }
+        }
     }//nms details
 }
