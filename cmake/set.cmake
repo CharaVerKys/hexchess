@@ -2,6 +2,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories("${CMAKE_SOURCE_DIR}/somecode")
+include_directories("${CMAKE_SOURCE_DIR}/thirdparty")
+include_directories("${CMAKE_SOURCE_DIR}/asio/asio/include")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions( -DRELEASE )
