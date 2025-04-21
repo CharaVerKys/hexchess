@@ -24,12 +24,12 @@ namespace movement{
                 left, right, left_top, right_top, left_bot, right_bot
             };
             std::unique_ptr<std::vector<lhc::position>> makeOneMoveInDirection(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from, bool recursively = true);
             std::optional<std::vector<lhc::position>> tryRunTo(direction const&, lhc::position const& from, lhc::position const& to);
         }
         std::optional<std::vector<lhc::position>> isValidKnightMove(lhc::position const& from, lhc::position const& to);
@@ -47,11 +47,12 @@ namespace movement{
                 left_top, right_top, left_bot, right_bot
             };
             std::unique_ptr<std::vector<lhc::position>> makeOneMoveInDirection(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from);
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from, bool recursively = true);
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from, bool recursively = true);
             std::optional<std::vector<lhc::position>> tryRunTo(direction const&, lhc::position const& from, lhc::position const& to);
         }
+        std::optional<std::vector<lhc::position>> isValidKingMove(Board&, lhc::position const& from, lhc::position const& to);
     }
 }

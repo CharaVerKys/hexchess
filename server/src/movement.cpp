@@ -1,8 +1,15 @@
 #include "movement.hpp"
 #include "figure.hpp"
-#include "simplealgorithm.hpp"
 #include <algorithm>
-#include <iostream>
+
+#define changeThisNameAsSoonAsPossible(nextStep_column, nextStep_row) \
+lhc::position nextStep{static_cast<uint8_t>(nextStep_column),static_cast<uint8_t>(nextStep_row)}; \
+if(not recursively){ \
+    return addToPath(nullptr,nextStep); \
+}else{ \
+    auto nextSteps = makeOneMoveInDirection(dir, nextStep); \
+    return addToPath(std::move(nextSteps), nextStep); \
+}
 
 namespace movement{
     moveResult entryMove(Board& board, lhc::protocol::payload::peace_move const& move_){
@@ -68,7 +75,7 @@ namespace movement{
                     return isValidBishopMove(board,from,to);
                 }break;
                 case figure_type::king:{
-                    
+                    return isValidKingMove(board, from, to);
                 }break;
                 /*unreachable*/case figure_type::invalid: std::abort();
             }
@@ -238,16 +245,12 @@ namespace movement{
             }// make one move in dir
 
 
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column < 4){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+2),static_cast<uint8_t>(from.row+1)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+2, from.row+1)
                 }
                 if(from.column == 4){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+2),from.row};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+2, from.row)
                 }
                 if(from.column > 8){
                     return nullptr;
@@ -257,12 +260,10 @@ namespace movement{
                 if(from.row == 0 or from.row == max_context.at(from.column)){
                     return nullptr;
                 }
-                lhc::position nextStep{static_cast<uint8_t>(from.column+2),static_cast<uint8_t>(from.row-1)};
-                auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                return addToPath(std::move(nextSteps), nextStep);
+                changeThisNameAsSoonAsPossible(from.column+2, from.row-1);
             } // imp make one right
 
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column == 10){
                     return nullptr;
                 }
@@ -278,15 +279,13 @@ namespace movement{
                 int newRow = from.row;
                 newRow -= difRow;
                 if(newRow >=0){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(newRow)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+1, newRow);
                 }else{
                     return nullptr;
                 }
             } // imp make one right top
             
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column == 10){
                     return nullptr;
                 }
@@ -298,24 +297,18 @@ namespace movement{
                 }
                 const std::array<std::uint8_t,11> max_depth = {6,7,8,9,10,11,10,9,8,7,6};
                 if(from.row+difRow < max_depth.at(from.column+1)){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row+difRow)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+1, from.row+difRow)
                 }else{
                     return nullptr;
                 }
             } // imp make one right bot
 
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column > 6){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-2),static_cast<uint8_t>(from.row+1)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-2, from.row+1)
                 }
                 if(from.column == 6){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-2),from.row};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-2, from.row)
                 }
                 if(from.column < 2){
                     return nullptr;
@@ -325,12 +318,10 @@ namespace movement{
                 if(from.row == 0 or from.row == max_context.at(from.column)){
                     return nullptr;
                 }
-                lhc::position nextStep{static_cast<uint8_t>(from.column-2),static_cast<uint8_t>(from.row-1)};
-                auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                return addToPath(std::move(nextSteps), nextStep);
+                changeThisNameAsSoonAsPossible(from.column-2, from.row-1)
             } // imp make one left
 
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column == 0){
                     return nullptr;
                 }
@@ -346,16 +337,14 @@ namespace movement{
                 int newRow = from.row;
                 newRow -= difRow;
                 if(newRow >=0){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(newRow)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-1, newRow)
                 }else{
                     return nullptr;
                 }
 
             }// imp make one left top
 
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column == 0){
                     return nullptr;
                 }
@@ -367,9 +356,7 @@ namespace movement{
                 }
                 const std::array<std::uint8_t,10> max_depth = {0,7,8,9,10,11,10,9,8,7};
                 if(from.row+difRow < max_depth.at(from.column-1)){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(from.row+difRow)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-1, from.row+difRow)
                 }else{
                     return nullptr;
                 }
@@ -596,44 +583,35 @@ namespace movement{
                 }
                 std::abort();
             }
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_top(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column < 5){
                     lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row)};
+                    if(not recursively){nextStep.column = 111; nextStep.row = 222;}
                     auto nextSteps = makeOneMoveInDirection(dir, nextStep);
                     return addToPath(std::move(nextSteps), nextStep);
                 }else if(from.column < 10){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row-1)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+1, from.row-1)
                 }
                 return nullptr;
             }
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toRight_bot(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column < 5){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row+1)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+1, from.row+1)
                 }else if(from.column < 10){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column+1),static_cast<uint8_t>(from.row)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column+1, from.row)
                 }
                 return nullptr;
             }
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_top(direction const& dir, lhc::position const& from, bool recursively){
                 if(from.column >= 11){return nullptr;}
                 if(from.column > 5){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(from.row)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-1, from.row)
                 }else if(from.column > 0){
-                    lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(from.row-1)};
-                    auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                    return addToPath(std::move(nextSteps), nextStep);
+                    changeThisNameAsSoonAsPossible(from.column-1, from.row-1)
                 }
                 return nullptr;
             }
-            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from){
+            std::unique_ptr<std::vector<lhc::position>> imp_makeOneMoveInDirection_toLeft_bot(direction const& dir, lhc::position const& from, bool recursively){
                 const std::array<std::uint8_t,10> maxSize = {6,7,8,9,10,11,10,9,8,7};
                 std::uint8_t newRow;
                 assert(from.column < 11);
@@ -645,12 +623,10 @@ namespace movement{
                 }else{
                     newRow = from.row+1;
                 }
-                if(newRow >= maxSize.at(newRow)){
+                if(newRow >= maxSize.at(from.column-1)){
                     return nullptr;
                 }
-                lhc::position nextStep{static_cast<uint8_t>(from.column-1),static_cast<uint8_t>(newRow)};
-                auto nextSteps = makeOneMoveInDirection(dir, nextStep);
-                return addToPath(std::move(nextSteps), nextStep);
+                changeThisNameAsSoonAsPossible(from.column-1, newRow)
             }
             std::optional<std::vector<lhc::position>> tryRunTo(direction const& dir, lhc::position const& from, lhc::position const& to){
                 std::unique_ptr<std::vector<lhc::position>> result = makeOneMoveInDirection(dir, from);
@@ -664,6 +640,48 @@ namespace movement{
                 }else{
                     return std::nullopt;
                 }
+            }
+        }
+        std::optional<std::vector<lhc::position>> isValidKingMove(Board&, lhc::position const& from, lhc::position const& to){
+            if(from.column == to.column){
+                if(std::abs(static_cast<int8_t>(from.row) - static_cast<int8_t>(to.row)) == 1){
+                    return {{to}};
+                }
+            }
+            constexpr bool notRecursively = false;
+            std::array<std::unique_ptr<std::vector<lhc::position>>,10> testResults;
+            std::uint8_t idx = 0;
+            // ? self variable direction not required at all, i just wrote for style, it never used in not recursive run
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toLeft(bishop::left, from, notRecursively);
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toRight(bishop::right, from, notRecursively);
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toLeft_bot(bishop::left_bot, from, notRecursively);//
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toLeft_top(bishop::left_top, from, notRecursively);//
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toRight_bot(bishop::right_bot, from, notRecursively);
+            testResults[idx++] = bishop::imp_makeOneMoveInDirection_toRight_top(bishop::right_top, from, notRecursively);
+            testResults[idx++] = rook::imp_makeOneMoveInDirection_toLeft_bot(rook::left_bot, from, notRecursively);
+            testResults[idx++] = rook::imp_makeOneMoveInDirection_toLeft_top(rook::left_top, from, notRecursively);
+            testResults[idx++] = rook::imp_makeOneMoveInDirection_toRight_bot(rook::right_bot, from, notRecursively);
+            testResults[idx++] = rook::imp_makeOneMoveInDirection_toRight_top(rook::right_top, from, notRecursively);
+            assert(idx == 10);
+            auto ifSizeOneThenSuccess = testResults | std::views::filter([to](auto&& ptr){
+                if(ptr){
+                    assert(ptr->size() == 1);
+                    return ptr->front() <=> to == std::strong_ordering::equal;
+                }
+                return false;
+            });
+            uint res = 0;
+            for( [[maybe_unused]] auto const& c: ifSizeOneThenSuccess){
+                res++;
+            }
+            // res = ifSizeOneThenSuccess.size();
+            // res = std::ranges::size(ifSizeOneThenSuccess);
+            // res = std::ranges::count // !! ?? nvm
+            assert(res == 0 or res == 1);
+            if(res == 1){
+                return {{to}};
+            }else{
+                return std::nullopt;
             }
         }
     }//nms details
