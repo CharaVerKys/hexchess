@@ -3,7 +3,9 @@
 #include <compare>
 #include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <ostream>
+#include <asio/ip/tcp.hpp>
 
 // ? no nms
 enum class Color : std::uint8_t{
@@ -29,6 +31,11 @@ enum class figure_side : std::int8_t{
     black   =  1,
 };
 
+enum game_winner : std::int8_t{
+    invalid = -1,
+    white_win_the_game =  0,
+    black_win_the_game =  1,
+};
 
 namespace lhc{
     struct position{
@@ -48,6 +55,7 @@ namespace lhc{
     };
 }
 
+//todo move from this file to separated
 namespace lhc::color{
     inline void next(Color/*mut*/& curColor){
         switch (curColor) {
@@ -63,4 +71,15 @@ namespace lhc::color{
             /*unreachable*/case Color::invalid: std::abort();
         }
     }
+}
+
+namespace lhc{
+    struct z_detail_player_type{
+        figure_side side;
+        std::optional<asio::ip::tcp::socket> socket;
+        using unique_id = std::uint32_t; 
+        const unique_id id;
+        z_detail_player_type(unique_id id, figure_side side = figure_side::invalid):side(side),id(id){}
+    };
+    using player_t = std::unique_ptr<z_detail_player_type>;
 }
