@@ -25,10 +25,13 @@ public:
     getColumn(std::uint8_t column);
     bool isAnyPeaceAt(lhc::position const&);
     Color colorOfCell(lhc::position const&);
-    void movePeace(lhc::position const&, lhc::position const&);
+    std::optional<figure_side> checkVictory_and_movePeace(lhc::position const&, lhc::position const&);
     void promoteToQueen(lhc::position const&);
 
     lhc::protocol::payload::allBoardPeaces getAllPeaces();
+    operator bool(){
+        return o_field.has_value();
+    }
 
 private:
     Board(){}

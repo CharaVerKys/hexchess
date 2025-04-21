@@ -44,7 +44,7 @@ Color Board::colorOfCell(lhc::position const& pos){
     return std::ranges::next(column.begin(),pos.row)->color;
 }
 
-void Board::movePeace(lhc::position const& from, lhc::position const& to){
+std::optional<figure_side> Board::checkVictory_and_movePeace(lhc::position const& from, lhc::position const& to){
     auto column = getColumn(from.column);
     assert(column.size() > from.row);
     auto peaceToMove = std::move(std::ranges::next(column.begin(),from.row)->figure);
@@ -52,7 +52,14 @@ void Board::movePeace(lhc::position const& from, lhc::position const& to){
 
     column = getColumn(to.column);
     assert(column.size() > to.row);
-    std::ranges::next(column.begin(),to.row)->figure = std::move(peaceToMove);
+    std::unique_ptr<Figure>& f = std::ranges::next(column.begin(),to.row)->figure;
+    if(f->getType() == figure_type::king){
+        figure_side side = f->getSide();
+        o_field.reset();
+        return side;
+    }
+    f = std::move(peaceToMove);
+    return std::nullopt;
 }
 
 void Board::promoteToQueen(lhc::position const& where){
