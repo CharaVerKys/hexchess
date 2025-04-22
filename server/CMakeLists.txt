@@ -7,7 +7,9 @@ add_executable(server
     "src/main.cpp"
     "src/board.cpp"
     "src/movement.cpp"
+    "src/idpool.cpp"
 ) # source list
 
 target_include_directories(server PRIVATE "src")
 target_link_libraries(server PRIVATE libhexchess)
+target_link_libraries(server PRIVATE SQLiteCpp)
