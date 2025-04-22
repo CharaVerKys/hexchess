@@ -27,8 +27,15 @@ namespace movement{
 
         // test is there no any peaces in front of figure (except pawn)
         
-        board.movePeace(move_.from, move_.to);
+        auto res = board.checkVictory_and_movePeace(move_.from, move_.to);
         details::checkPromoting(board, move_.to, move_.ver_type, move_.ver_side);
+        if(res){
+            if(*res == figure_side::black){
+                return allowAction_andVictoryBlack;
+            }else if(*res == figure_side::white){
+                return allowAction_andVictoryWhite;
+            }
+        }//if res
         return allowAction;
         std::abort();
     }

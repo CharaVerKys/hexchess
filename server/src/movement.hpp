@@ -3,9 +3,11 @@
 #include "board.hpp"
 
 enum moveResult : std::int8_t{
-    invalid = -1,
+    invalid_moveResult = -1,
     allowAction = 0,
     disallowAction = 1,
+    allowAction_andVictoryBlack = 2,
+    allowAction_andVictoryWhite = 3,
 };
 
 namespace movement{
