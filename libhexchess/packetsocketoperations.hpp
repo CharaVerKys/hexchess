@@ -4,6 +4,7 @@
 #include "protocol.hpp"
 #include <asio/ip/tcp.hpp>
 #include <coroutine>
+#include <ranges>
 
 namespace cvk::socket{
     struct packet{
@@ -21,17 +22,21 @@ namespace cvk::socket{
             data.resize(16);
             std::memcpy(data.data(),&header,sizeof(header));
         }
-        void setPayload(std::vector<std::byte>&& payload){
+        void setPayload(std::vector<std::byte> const& payload){
             if(data.size() not_eq sizeof(lhc::protocol::PacketHeader)){
                 throw std::logic_error("invalid packet to set payload");
             }
-            std::ranges::copy(std::move(payload),std::back_inserter(data));
+            std::ranges::copy(payload,std::back_inserter(data));
+        }
+        std::ranges::drop_view<std::views::all_t<std::vector<std::byte, std::allocator<std::byte>> &>>
+        getPayload() {
+          return data | std::views::drop(sizeof(lhc::protocol::PacketHeader));
         }
     };
     using packet_t = std::shared_ptr<packet>;
     namespace await{
         struct sendPacket : public std::suspend_always{
-            sendPacket(asio::ip::tcp::socket&, lhc::protocol::PacketHeader const&, std::vector<std::byte> &&);
+            sendPacket(asio::ip::tcp::socket&, lhc::protocol::PacketHeader const&, std::vector<std::byte> const&);
             void await_suspend(std::coroutine_handle<>);
             [[nodiscard]] std::error_code await_resume(){return ec_;}
             private: asio::ip::tcp::socket& socket_; std::error_code ec_; packet_t packet;

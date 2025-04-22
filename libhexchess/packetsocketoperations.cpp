@@ -4,9 +4,9 @@
 #define mac_asyncResume(handle)\
     asio::post(static_objects::asio_context(),[h = (handle)]{assert(not h.done()); h.resume();})
 
-cvk::socket::await::sendPacket::sendPacket(asio::ip::tcp::socket&sock, lhc::protocol::PacketHeader const& header, std::vector<std::byte> && payload):socket_(sock){
+cvk::socket::await::sendPacket::sendPacket(asio::ip::tcp::socket&sock, lhc::protocol::PacketHeader const& header, std::vector<std::byte> const& payload):socket_(sock){
     packet->setHeader(header);
-    packet->setPayload(std::move(payload));
+    packet->setPayload(payload);
 }
 void cvk::socket::await::sendPacket::await_suspend(std::coroutine_handle<> h){
     std::size_t totalSize = packet->data.size();
