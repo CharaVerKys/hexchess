@@ -32,7 +32,7 @@ enum class figure_side : std::int8_t{
 };
 
 enum game_winner : std::int8_t{
-    invalid = -1,
+    invalid_game_winner = -1,
     white_win_the_game =  0,
     black_win_the_game =  1,
 };

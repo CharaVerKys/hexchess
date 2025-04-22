@@ -73,7 +73,6 @@ void Board::promoteToQueen(lhc::position const& where){
 
 lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
 {
-    lhc::protocol::payload::allBoardPeaces allBoardPeaces;
     std::vector<lhc::protocol::payload::peace> allPeaces;
     auto ranges = lhc::field_ranges();
     auto currentRange = ranges.begin();
@@ -86,8 +85,7 @@ lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
         }//row
     }//col
     // assert(allPeaces.size() == 36);
-    allBoardPeaces.setPeaces(std::move(allPeaces));
-    return allBoardPeaces;
+    return lhc::protocol::payload::allBoardPeaces{std::move(allPeaces)};
 }
 
 void Board::initColors(std::array<Cell,91>& field){
