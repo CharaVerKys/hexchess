@@ -37,4 +37,17 @@ namespace lhc::protocol{
             lhc::position to;
         };
     }
+    struct PacketHeader{
+      PacketHeader() : totalSize(0), userID(0), action_(action::invalid) {}
+      PacketHeader(std::size_t totalSize, lhc::unique_id userID, action action)
+          : totalSize(totalSize), userID(userID), action_(action) {}
+      PacketHeader(const PacketHeader &) = default;
+      PacketHeader(PacketHeader &&) = default;
+      PacketHeader &operator=(const PacketHeader &other){this->action_ = other.action_;this->totalSize = other.totalSize; this->userID = other.userID; return *this;}
+      PacketHeader &operator=(PacketHeader &&other){*this = static_cast<PacketHeader&>(other); return *this;}
+      std::size_t totalSize;
+      lhc::unique_id userID;
+      action action_;
+      const std::uint8_t reserved[3] = {0};
+    };
 }

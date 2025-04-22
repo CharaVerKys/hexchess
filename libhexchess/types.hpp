@@ -74,10 +74,10 @@ namespace lhc::color{
 }
 
 namespace lhc{
+    using unique_id = std::uint32_t; 
     struct z_detail_player_type{
         figure_side side;
         std::optional<asio::ip::tcp::socket> socket;
-        using unique_id = std::uint32_t; 
         const unique_id id;
         z_detail_player_type(unique_id id, figure_side side = figure_side::invalid):side(side),id(id){}
     };

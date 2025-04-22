@@ -1,13 +1,6 @@
 #pragma once
 
-#include "asio/io_context.hpp"
-namespace static_objects{
-inline asio::io_context& asio_context() {
-    static asio::io_context instance;
-    return instance;
-}
-}
-
+#include "static_objects.hpp"
 #include <condition_variable>
 #include "expected"
 #include <mutex>
