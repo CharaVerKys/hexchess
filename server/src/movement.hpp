@@ -11,7 +11,7 @@ enum moveResult : std::int8_t{
 };
 
 namespace movement{
-    moveResult entryMove(Board&, lhc::protocol::payload::peace_move const&);
+    moveResult entryMove(Board&, lhc::protocol::payload::piece_move const&);
     bool seqClearToDo(Board&, std::vector<lhc::position> const& toTest);
     namespace details{
         bool isValidSideAndType(Board&, lhc::position const&, figure_type const&, figure_side const&);

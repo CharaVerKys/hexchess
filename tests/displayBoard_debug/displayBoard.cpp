@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     
 
     Board board = Board::initBoard(Board::Variant::default_);
-    auto prabp = board.getAllPeaces();
+    auto prabp = board.getAllPieces();
     
     QObject::connect(&w,&BoardSceneWidget::clicked,&app,[pb = &board, pw = &w](std::optional<lhc::position> pos, std::optional<figure_type>t, std::optional<figure_side>s){
         static lhc::position posFrom;
@@ -43,12 +43,12 @@ int main(int argc, char *argv[]) {
                 sFrom = *s;
                 posFrom = *pos;
         }else{
-            moveResult res = movement::entryMove(*pb, lhc::protocol::payload::peace_move{posFrom,tFrom,sFrom,*pos});
+            moveResult res = movement::entryMove(*pb, lhc::protocol::payload::piece_move{posFrom,tFrom,sFrom,*pos});
             if(res == allowAction){
                 if(t.has_value()){
-                    pw->deletePeace(*pos, *t, *s);
+                    pw->deletePiece(*pos, *t, *s);
                 }
-                pw->deletePeace(posFrom, tFrom, sFrom);
+                pw->deletePiece(posFrom, tFrom, sFrom);
                 // promote to queen
                 if(tFrom == figure_type::pawn){
                     if(sFrom == figure_side::white){
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 // promote to queen
-                pw->setPeace(*pos, tFrom, sFrom);
+                pw->setPiece(*pos, tFrom, sFrom);
             }
             tFrom = figure_type::invalid;
             sFrom = figure_side::invalid;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     });
 
 
-    w.setAllPeaces(prabp.getAllPeaces());
+    w.setAllPieces(prabp.getAllPieces());
 
     w.show();
 

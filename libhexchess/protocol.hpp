@@ -9,10 +9,10 @@ namespace lhc::protocol{
     
     enum class action : std::uint8_t{
         invalid = 0,
-        sendAllBoardPeaces = 1,
-        movePeaceBroadcast = 2,
-        requestMovePeace = 3,
-        wrongMovePeace = 4,
+        sendAllBoardPieces = 1,
+        movePieceBroadcast = 2,
+        requestMovePiece = 3,
+        wrongMovePiece = 4,
         gameEnd [[deprecated]] = 5,
         createMatch = 6,
         connectToMatch = 7, // reconnect call this
@@ -25,22 +25,22 @@ namespace lhc::protocol{
     };
 
     namespace payload{
-        struct peace{figure_type type; lhc::position position; figure_side side;};
-        static_assert(sizeof(peace)==4); // rely while memcpy
-        class allBoardPeaces{
-            std::vector<peace> v;
+        struct piece{figure_type type; lhc::position position; figure_side side;};
+        static_assert(sizeof(piece)==4); // rely while memcpy
+        class allBoardPieces{
+            std::vector<piece> v;
           public:
-            explicit allBoardPeaces(std::vector<peace>&& vec) : v(std::move(vec)) {}
-            std::vector<peace> const &getAllPeaces() { return v; }
+            explicit allBoardPieces(std::vector<piece>&& vec) : v(std::move(vec)) {}
+            std::vector<piece> const &getAllPieces() { return v; }
             void parseFromStream(std::span<std::byte,1000>);
             std::vector<std::byte> convertToStream();
-            std::size_t binSize(){return v.size()*sizeof(peace);}
+            std::size_t binSize(){return v.size()*sizeof(piece);}
         };
     
-        struct peace_move{
-            peace_move(lhc::position from, figure_type ver_type, figure_side ver_side, lhc::position to)
+        struct piece_move{
+            piece_move(lhc::position from, figure_type ver_type, figure_side ver_side, lhc::position to)
             : from(from), ver_type(ver_type), ver_side(ver_side), to(to) {}
-            peace_move(){}
+            piece_move(){}
             lhc::position from;
             figure_type ver_type;
             figure_side ver_side;
@@ -48,7 +48,7 @@ namespace lhc::protocol{
           protected:
             const std::uint8_t unused[2]={0};
         };
-        static_assert(sizeof(peace_move) == 8);
+        static_assert(sizeof(piece_move) == 8);
     }
     struct PacketHeader{
       PacketHeader() : totalSize(0), userID(0), action_(action::invalid) {}

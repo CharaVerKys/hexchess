@@ -12,7 +12,7 @@ if(not recursively){ \
 }
 
 namespace movement{
-    moveResult entryMove(Board& board, lhc::protocol::payload::peace_move const& move_){
+    moveResult entryMove(Board& board, lhc::protocol::payload::piece_move const& move_){
         if(not details::isValidSideAndType(board, move_.from, move_.ver_type, move_.ver_side)){
             return disallowAction;
         }
@@ -25,9 +25,9 @@ namespace movement{
             return disallowAction;
         }
 
-        // test is there no any peaces in front of figure (except pawn)
+        // test is there no any pieces in front of figure (except pawn)
         
-        auto res = board.checkVictory_and_movePeace(move_.from, move_.to);
+        auto res = board.checkVictory_and_movePiece(move_.from, move_.to);
         details::checkPromoting(board, move_.to, move_.ver_type, move_.ver_side);
         if(res){
             if(*res == figure_side::black){
@@ -43,7 +43,7 @@ namespace movement{
     bool seqClearToDo(Board& board, std::vector<lhc::position> const& toTest){
         int max = std::max(int(toTest.size())-1,0);
         for(auto& pos : std::views::take(toTest,max)){
-            if(board.isAnyPeaceAt(pos)){
+            if(board.isAnyPieceAt(pos)){
                 return false;
             }
         }
@@ -99,7 +99,7 @@ namespace movement{
                     if(from.row not_eq 6){
                         return false;
                     }
-                    if(board.isAnyPeaceAt(to) or board.isAnyPeaceAt({to.column,static_cast<uint8_t>(to.row+1u)})){
+                    if(board.isAnyPieceAt(to) or board.isAnyPieceAt({to.column,static_cast<uint8_t>(to.row+1u)})){
                         return false;
                     }
                     return true;
@@ -111,19 +111,19 @@ namespace movement{
                     if(from.row not_eq validDoubleStepBlack[from.column]){
                         return false;
                     }
-                    if(board.isAnyPeaceAt(to) or board.isAnyPeaceAt({to.column,static_cast<uint8_t>(to.row-1u)})){
+                    if(board.isAnyPieceAt(to) or board.isAnyPieceAt({to.column,static_cast<uint8_t>(to.row-1u)})){
                         return false;
                     }
                     return true;
                 }
                 else if(side == figure_side::white and from.row - to.row  == 1){
-                    if(board.isAnyPeaceAt(to)){
+                    if(board.isAnyPieceAt(to)){
                         return false;
                     }
                     return true;
                 }
                 else if(side == figure_side::black and from.row +1 == to.row){
-                    if(board.isAnyPeaceAt(to)){
+                    if(board.isAnyPieceAt(to)){
                         return false;
                     }
                     return true;
@@ -131,7 +131,7 @@ namespace movement{
             } // if same column
             // ? cast to prevent overflow, when from 0 to 1 column
             if(std::abs(static_cast<int>(from.column) - to.column) == 1){
-                if(not board.isAnyPeaceAt(to)){
+                if(not board.isAnyPieceAt(to)){
                     return false;
                 }
                 if(from.column == 5){

@@ -2,15 +2,15 @@
 #include <qgraphicsitem.h>
 
 
-struct GraphicPeace{
+struct GraphicPiece{
     using ptr_type = std::unique_ptr<QGraphicsPixmapItem,std::function<void(QGraphicsPixmapItem*)>>;
 
-    GraphicPeace(const GraphicPeace &) = delete;
-    GraphicPeace(GraphicPeace &&) = default;
-    GraphicPeace &operator=(const GraphicPeace &) = delete;
-    GraphicPeace &operator=(GraphicPeace &&) = default;
+    GraphicPiece(const GraphicPiece &) = delete;
+    GraphicPiece(GraphicPiece &&) = default;
+    GraphicPiece &operator=(const GraphicPiece &) = delete;
+    GraphicPiece &operator=(GraphicPiece &&) = default;
 
-    GraphicPeace(ptr_type &&item, figure_type t, figure_side s)
+    GraphicPiece(ptr_type &&item, figure_type t, figure_side s)
         : item(std::move(item)), type(t), side(s) {}
 
     ptr_type item = nullptr;
@@ -18,8 +18,8 @@ struct GraphicPeace{
     figure_side side;
 };
 
-struct HexAndPeace{
+struct HexAndPiece{
     QGraphicsPolygonItem* hex = nullptr;
-    std::optional<GraphicPeace> peace;
+    std::optional<GraphicPiece> piece;
     lhc::position position;
 };

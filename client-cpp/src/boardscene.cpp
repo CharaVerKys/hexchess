@@ -20,21 +20,21 @@ BoardSceneWidget::BoardSceneWidget(QWidget* parent)
     initAllCells();
 }
 
-void BoardSceneWidget::setAllPeaces(std::vector<lhc::protocol::payload::peace> const& initialPeaces){
-    for(auto const& peace : initialPeaces){
-        setPeace_private(peace.type, peace.position, peace.side);
+void BoardSceneWidget::setAllPieces(std::vector<lhc::protocol::payload::piece> const& initialPieces){
+    for(auto const& piece : initialPieces){
+        setPiece_private(piece.type, piece.position, piece.side);
     }
 }
 
-void BoardSceneWidget::deletePeace(lhc::position pos, figure_type type, figure_side side){
+void BoardSceneWidget::deletePiece(lhc::position pos, figure_type type, figure_side side){
     auto& cell = getCellAt(pos);
-    assert(cell.peace->type == type);
-    assert(cell.peace->side == side);
-    cell.peace = std::nullopt;
+    assert(cell.piece->type == type);
+    assert(cell.piece->side == side);
+    cell.piece = std::nullopt;
 }
 
-void BoardSceneWidget::setPeace(lhc::position pos, figure_type type, figure_side side){
-    setPeace_private(type, pos, side);
+void BoardSceneWidget::setPiece(lhc::position pos, figure_type type, figure_side side){
+    setPiece_private(type, pos, side);
     if(oldColor){
         oldColor->first->setBrush(oldColor->second);
         oldColor = std::nullopt;
@@ -47,9 +47,9 @@ void BoardSceneWidget::colorizeCell(QGraphicsPolygonItem* item){
     item->setBrush({QColor{0x80,0x4D,0x62}});
 }
 
-HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPolygonItem*ptr){
+HexAndPiece const& BoardSceneWidget::findCellByGraphItem(QGraphicsPolygonItem*ptr){
     assert(ptr);
-    for(HexAndPeace const& cell : *allCells){
+    for(HexAndPiece const& cell : *allCells){
         if(ptr == cell.hex){
             return cell;
         }
@@ -57,11 +57,11 @@ HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPolygonItem*pt
     std::abort();
 }
 
-HexAndPeace const& BoardSceneWidget::findCellByGraphItem(QGraphicsPixmapItem*ptr){
+HexAndPiece const& BoardSceneWidget::findCellByGraphItem(QGraphicsPixmapItem*ptr){
     assert(ptr);
-    for(HexAndPeace const& cell : *allCells){
-        if(cell.peace.has_value()){
-            if(ptr == cell.peace->item.get()){
+    for(HexAndPiece const& cell : *allCells){
+        if(cell.piece.has_value()){
+            if(ptr == cell.piece->item.get()){
                 return cell;
             }
         }
@@ -94,7 +94,7 @@ QBrush BoardSceneWidget::choiceBrushColor(Color const& color){
 }
 void BoardSceneWidget::initAllCells(){
     assert(not allCells);
-    allCells = std::array<HexAndPeace,91>{};
+    allCells = std::array<HexAndPiece,91>{};
 
     [[maybe_unused]] constexpr std::uint8_t skipForGridLogic[11] = {3,2,2,1,1,0,1,1,2,2,3};
     auto curFirstColor = lhc::constants::firstColor.begin();
@@ -132,8 +132,8 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
                 clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(hex);
                 colorizeCell(cell.hex);
-                if(cell.peace){
-                    emit clicked(cell.position, cell.peace->type, cell.peace->side);
+                if(cell.piece){
+                    emit clicked(cell.position, cell.piece->type, cell.piece->side);
                 }else{
                     emit clicked(cell.position, std::nullopt, std::nullopt);
                 }
@@ -142,7 +142,7 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
                 clickWasOnCell = true;
                 auto& cell = findCellByGraphItem(pix);
                 colorizeCell(cell.hex);
-                emit clicked(cell.position, cell.peace->type, cell.peace->side);
+                emit clicked(cell.position, cell.piece->type, cell.piece->side);
             }
         }
         if(not clickWasOnCell){
@@ -152,23 +152,23 @@ bool BoardSceneWidget::eventFilter(QObject* obj, QEvent* ev) {
     return QWidget::eventFilter(obj, ev);
 }
 
-void BoardSceneWidget::setPeace_private(figure_type const& type, lhc::position const& pos, figure_side const& side){
-    HexAndPeace& cell = getCellAt(pos);
-    assert(cell.peace == std::nullopt);
-    GraphicPeace peace{getPeaceGraphicItem(type,side),type,side};
+void BoardSceneWidget::setPiece_private(figure_type const& type, lhc::position const& pos, figure_side const& side){
+    HexAndPiece& cell = getCellAt(pos);
+    assert(cell.piece == std::nullopt);
+    GraphicPiece piece{getPieceGraphicItem(type,side),type,side};
 
     QPointF center = cell.hex->boundingRect().center();
     center = cell.hex->mapToScene(center); // переводим в координаты сцены
-    peace.item->setOffset(
-        center.x() - static_cast<float>(peace.item->pixmap().width()  )/2,
-        center.y() - static_cast<float>(peace.item->pixmap().height() )/2
+    piece.item->setOffset(
+        center.x() - static_cast<float>(piece.item->pixmap().width()  )/2,
+        center.y() - static_cast<float>(piece.item->pixmap().height() )/2
     );
-    scene->addItem(peace.item.get());
+    scene->addItem(piece.item.get());
 
-    cell.peace = std::move(peace);
+    cell.piece = std::move(piece);
 }
 
-HexAndPeace& BoardSceneWidget::getCellAt(lhc::position const& pos){
+HexAndPiece& BoardSceneWidget::getCellAt(lhc::position const& pos){
     assert(pos.column <12);
     auto range = lhc::field_ranges();
     auto depth = range.begin();
@@ -178,7 +178,7 @@ HexAndPeace& BoardSceneWidget::getCellAt(lhc::position const& pos){
     return allCells->at(pair.drop + pos.row);
 }
 
-GraphicPeace::ptr_type BoardSceneWidget::getPeaceGraphicItem(figure_type const& type, figure_side const& side){
+GraphicPiece::ptr_type BoardSceneWidget::getPieceGraphicItem(figure_type const& type, figure_side const& side){
      QString baseDir = "/home/charaverk/Pictures/chess/";
      QPixmap map;
      QString wb;

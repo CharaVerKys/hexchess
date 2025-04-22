@@ -23,12 +23,12 @@ public:
     [[nodiscard]] // readable type in cpp
     std::ranges::take_view<std::ranges::drop_view<std::ranges::ref_view<std::array<Cell,91>>>>
     getColumn(std::uint8_t column);
-    bool isAnyPeaceAt(lhc::position const&);
+    bool isAnyPieceAt(lhc::position const&);
     Color colorOfCell(lhc::position const&);
-    std::optional<figure_side> checkVictory_and_movePeace(lhc::position const&, lhc::position const&);
+    std::optional<figure_side> checkVictory_and_movePiece(lhc::position const&, lhc::position const&);
     void promoteToQueen(lhc::position const&);
 
-    lhc::protocol::payload::allBoardPeaces getAllPeaces();
+    lhc::protocol::payload::allBoardPieces getAllPieces();
     operator bool(){
         return o_field.has_value();
     }

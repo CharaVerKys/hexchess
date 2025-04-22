@@ -32,7 +32,7 @@ Board::getColumn(std::uint8_t column){
     return *o_field | std::views::drop(pair.drop) | std::views::take(pair.take);
 }
 
-bool Board::isAnyPeaceAt(lhc::position const& pos){
+bool Board::isAnyPieceAt(lhc::position const& pos){
     auto column = getColumn(pos.column);
     assert(column.size() > pos.row);
     return std::ranges::next(column.begin(),pos.row)->figure not_eq nullptr;
@@ -44,10 +44,10 @@ Color Board::colorOfCell(lhc::position const& pos){
     return std::ranges::next(column.begin(),pos.row)->color;
 }
 
-std::optional<figure_side> Board::checkVictory_and_movePeace(lhc::position const& from, lhc::position const& to){
+std::optional<figure_side> Board::checkVictory_and_movePiece(lhc::position const& from, lhc::position const& to){
     auto column = getColumn(from.column);
     assert(column.size() > from.row);
-    auto peaceToMove = std::move(std::ranges::next(column.begin(),from.row)->figure);
+    auto pieceToMove = std::move(std::ranges::next(column.begin(),from.row)->figure);
     assert(std::ranges::next(column.begin(),from.row)->figure == nullptr);
 
     column = getColumn(to.column);
@@ -58,7 +58,7 @@ std::optional<figure_side> Board::checkVictory_and_movePeace(lhc::position const
         o_field.reset();
         return side;
     }
-    f = std::move(peaceToMove);
+    f = std::move(pieceToMove);
     return std::nullopt;
 }
 
@@ -71,21 +71,21 @@ void Board::promoteToQueen(lhc::position const& where){
     assert(std::ranges::next(column.begin(),where.row)->figure->getType() == figure_type::queen);
 }
 
-lhc::protocol::payload::allBoardPeaces Board::getAllPeaces()
+lhc::protocol::payload::allBoardPieces Board::getAllPieces()
 {
-    std::vector<lhc::protocol::payload::peace> allPeaces;
+    std::vector<lhc::protocol::payload::piece> allPieces;
     auto ranges = lhc::field_ranges();
     auto currentRange = ranges.begin();
     for (std::uint8_t column =0; currentRange not_eq ranges.end(); ++column, ++currentRange) {
         for(std::uint8_t row = 0; row < currentRange->take; ++row){
             auto const& figure = o_field->at(currentRange->drop + row).figure;
             if(figure not_eq nullptr){
-                allPeaces.emplace_back(figure->getType(), lhc::position{column,row}, figure->getSide());
+                allPieces.emplace_back(figure->getType(), lhc::position{column,row}, figure->getSide());
             }//if exist
         }//row
     }//col
-    // assert(allPeaces.size() == 36);
-    return lhc::protocol::payload::allBoardPeaces{std::move(allPeaces)};
+    // assert(allPieces.size() == 36);
+    return lhc::protocol::payload::allBoardPieces{std::move(allPieces)};
 }
 
 void Board::initColors(std::array<Cell,91>& field){

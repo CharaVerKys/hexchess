@@ -16,28 +16,28 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
     assert(white->id not_eq black->id);
 
     board = Board::initBoard(Board::Variant::default_);
-    auto allPeaces = board.getAllPeaces();
+    auto allPieces = board.getAllPieces();
     
     lhc::protocol::PacketHeader headerW{
-        sizeof(lhc::protocol::PacketHeader) + allPeaces.binSize(),
+        sizeof(lhc::protocol::PacketHeader) + allPieces.binSize(),
         players.white->id,
-        lhc::protocol::action::sendAllBoardPeaces
+        lhc::protocol::action::sendAllBoardPieces
     };
     lhc::protocol::PacketHeader headerB{
-        sizeof(lhc::protocol::PacketHeader) + allPeaces.binSize(),
+        sizeof(lhc::protocol::PacketHeader) + allPieces.binSize(),
         players.white->id,
-        lhc::protocol::action::sendAllBoardPeaces
+        lhc::protocol::action::sendAllBoardPieces
     };
 
     std::error_code error_code = co_await cvk::socket::await::sendPacket(
-        players.white->socket.value(), headerW, allPeaces.convertToStream());
+        players.white->socket.value(), headerW, allPieces.convertToStream());
     if(error_code){
-        throw std::runtime_error(std::string("error during sending all board peaces in initDefaultMatch: ")+=error_code.message());
+        throw std::runtime_error(std::string("error during sending all board pieces in initDefaultMatch: ")+=error_code.message());
     }
     error_code = co_await cvk::socket::await::sendPacket(
-        players.black->socket.value(), headerB, allPeaces.convertToStream());
+        players.black->socket.value(), headerB, allPieces.convertToStream());
     if(error_code){
-        throw std::runtime_error(std::string("error during sending all board peaces in initDefaultMatch: ")+=error_code.message());
+        throw std::runtime_error(std::string("error during sending all board pieces in initDefaultMatch: ")+=error_code.message());
     }
 
     socketReceiveProcessLifetimeHandle.black = receivedFromBlack();
@@ -127,16 +127,16 @@ cvk::future<Unit> MatchControl::answerOnlyAction(lhc::player_t& player, lhc::pro
     }
     co_return {};
 }
-cvk::future<Unit> MatchControl::broadcastPeaceMove(lhc::protocol::payload::peace_move const& move){
+cvk::future<Unit> MatchControl::broadcastPieceMove(lhc::protocol::payload::piece_move const& move){
     lhc::protocol::PacketHeader headerW{
         sizeof(lhc::protocol::PacketHeader),
         players.white->id,
-        lhc::protocol::action::movePeaceBroadcast
+        lhc::protocol::action::movePieceBroadcast
     };
     lhc::protocol::PacketHeader headerB{
         sizeof(lhc::protocol::PacketHeader),
         players.white->id,
-        lhc::protocol::action::movePeaceBroadcast
+        lhc::protocol::action::movePieceBroadcast
     };
 
     std::vector<std::byte> move_payload(8);
@@ -164,23 +164,23 @@ cvk::future<Unit> MatchControl::processPacket(lhc::player_t& player, cvk::socket
         co_await abortGame();
         co_return{};
     }
-    if(header.action_ == lhc::protocol::action::requestMovePeace){
+    if(header.action_ == lhc::protocol::action::requestMovePiece){
         if(turn not_eq playerTurn(player)){
             co_await answerOnlyAction(player, lhc::protocol::action::enemyTurn);
             co_return{};
         }
-        lhc::protocol::payload::peace_move peace_move;
-        if(header.totalSize not_eq sizeof(header) + sizeof(peace_move)){
+        lhc::protocol::payload::piece_move piece_move;
+        if(header.totalSize not_eq sizeof(header) + sizeof(piece_move)){
             co_await abortGame();
             co_return{};
         }
-        // std::memcpy(&peace_move,packet->getPayload().data(),sizeof(peace_move));            
-        std::ranges::copy(packet->getPayload(),reinterpret_cast<std::byte*>(&peace_move));
-        moveResult res = movement::entryMove(board, peace_move);
+        // std::memcpy(&piece_move,packet->getPayload().data(),sizeof(piece_move));            
+        std::ranges::copy(packet->getPayload(),reinterpret_cast<std::byte*>(&piece_move));
+        moveResult res = movement::entryMove(board, piece_move);
         if(res == disallowAction){
-            co_await answerOnlyAction(player, lhc::protocol::action::wrongMovePeace);
+            co_await answerOnlyAction(player, lhc::protocol::action::wrongMovePiece);
         }else if(res == allowAction){
-            co_await broadcastPeaceMove(peace_move);
+            co_await broadcastPieceMove(piece_move);
         }
     }
     co_return{};
