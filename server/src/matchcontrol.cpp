@@ -181,6 +181,12 @@ cvk::future<Unit> MatchControl::processPacket(lhc::player_t& player, cvk::socket
             co_await answerOnlyAction(player, lhc::protocol::action::wrongMovePiece);
         }else if(res == allowAction){
             co_await broadcastPieceMove(piece_move);
+        }else if(res == allowAction_andVictoryBlack){
+            co_await broadcastPieceMove(piece_move);
+            co_await broadcastWin(black_win_the_game);
+        }else if(res == allowAction_andVictoryWhite){
+            co_await broadcastPieceMove(piece_move);
+            co_await broadcastWin(white_win_the_game);
         }
     }
     co_return{};

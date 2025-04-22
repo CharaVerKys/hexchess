@@ -1,5 +1,3 @@
-#pragma once
-
 #include "protocol.hpp"
 
 void lhc::protocol::payload::allBoardPieces::parseFromStream(std::span<std::byte,1000> data){

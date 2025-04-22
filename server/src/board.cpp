@@ -53,7 +53,7 @@ std::optional<figure_side> Board::checkVictory_and_movePiece(lhc::position const
     column = getColumn(to.column);
     assert(column.size() > to.row);
     std::unique_ptr<Figure>& f = std::ranges::next(column.begin(),to.row)->figure;
-    if(f->getType() == figure_type::king){
+    if(f and f->getType() == figure_type::king){
         figure_side side = f->getSide();
         o_field.reset();
         return side;
