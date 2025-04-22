@@ -55,13 +55,26 @@ std::error_code MatchControl::reconnectPlayer(lhc::player_t&& disconnected){
     if(aborted or finishGame.coroutine.done()){
         return std::make_error_code(std::errc::connection_aborted);
     }else if(disconnected->id == players.black->id){
+        assert(disconnected->side == figure_side::invalid);
+        disconnected->side = figure_side::black;
         players.black = std::move(disconnected);
     }else if(disconnected->id == players.white->id){
+        assert(disconnected->side == figure_side::invalid);
+        disconnected->side = figure_side::white;
         players.white = std::move(disconnected);
     }else{
         return std::make_error_code(std::errc::invalid_argument);
     }
     return std::make_error_code(std::errc());
+}
+
+bool MatchControl::isIdForReconnect(lhc::unique_id const& id){
+    if(id == players.black->id){
+        return true;
+    }else if(id == players.white->id){
+        return true;
+    }
+    return false;
 }
 
 DefaultCoroutine MatchControl::receivedFromWhite(){

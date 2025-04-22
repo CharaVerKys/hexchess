@@ -3,6 +3,7 @@
         "idpool",
         "libhexchess",
         "qgraphicsitem",
+        "sessionscontrol",
         "somecode",
         "sqlitecpp",
         "thirdparty"

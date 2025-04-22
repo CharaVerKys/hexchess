@@ -49,6 +49,10 @@ namespace lhc::protocol{
             const std::uint8_t unused[2]={0};
         };
         static_assert(sizeof(piece_move) == 8);
+        struct createMatch{
+          figure_side side;
+          const std::uint8_t reserved[3] = {0};
+        };
     }
     struct PacketHeader{
       PacketHeader() : totalSize(0), userID(0), action_(action::invalid) {}
