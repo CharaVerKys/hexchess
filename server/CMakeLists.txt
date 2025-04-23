@@ -9,6 +9,7 @@ add_executable(server
     "src/movement.cpp"
     "src/idpool.cpp"
     "src/sessionscontrol.cpp"
+    "src/matchcontrol.cpp"
 ) # source list
 
 target_include_directories(server PRIVATE "src")

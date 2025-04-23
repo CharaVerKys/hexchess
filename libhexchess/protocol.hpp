@@ -22,6 +22,10 @@ namespace lhc::protocol{
         enemyTurn = 11,
         gameEnd_winWhite = 12,
         gameEnd_winBlack = 13,
+        requestID = 14,
+        answerID = 15,
+        error_noID = 16,
+        deleteMatch = 17, // from list of all matches
     };
 
     namespace payload{
@@ -33,8 +37,8 @@ namespace lhc::protocol{
             explicit allBoardPieces(std::vector<piece>&& vec) : v(std::move(vec)) {}
             std::vector<piece> const &getAllPieces() { return v; }
             void parseFromStream(std::span<std::byte,1000>);
-            std::vector<std::byte> convertToStream();
-            std::size_t binSize(){return v.size()*sizeof(piece);}
+            std::vector<std::byte> convertToStream() const;
+            std::size_t binSize()const{return v.size()*sizeof(piece);}
         };
     
         struct piece_move{
@@ -52,6 +56,10 @@ namespace lhc::protocol{
         struct createMatch{
           figure_side side;
           const std::uint8_t reserved[3] = {0};
+        };
+        struct match{figure_side side; lhc::unique_id id;};
+        struct listOfAllMatches{
+            std::vector<match> vec;
         };
     }
     struct PacketHeader{

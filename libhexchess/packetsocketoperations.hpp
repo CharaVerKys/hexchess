@@ -8,13 +8,14 @@
 
 namespace cvk::socket{
     struct packet{
+        std::vector<std::byte> data;
+        ////
         lhc::protocol::PacketHeader getHeader(){
             if(data.size() < sizeof(lhc::protocol::PacketHeader)){return {};}
             lhc::protocol::PacketHeader h;
             std::copy(data.begin(), data.begin() + sizeof(lhc::protocol::PacketHeader), reinterpret_cast<std::byte*>(&h));
             return h;
         }
-        std::vector<std::byte> data;
         void setHeader(lhc::protocol::PacketHeader const& header){
             if(not data.empty() and data.size() not_eq sizeof(lhc::protocol::PacketHeader)){
                 throw std::logic_error("invalid packet to set header");
