@@ -9,7 +9,7 @@
 // ? class should control: turns, {time}, win trigger
 
 class MatchControl{
-    Board board;
+    std::optional<Board> board;
     ///
     enum turn_t:bool{white_turn,black_turn};
     turn_t turn = white_turn;
@@ -29,10 +29,14 @@ class MatchControl{
     } socketReceiveProcessLifetimeHandle;
 
 public:
-    cvk::future<game_winner> initDefaultMatch(lhc::player_t&& white, lhc::player_t&& black);
-    std::error_code reconnectPlayer(lhc::player_t&& disconnected);
-    bool isIdForReconnect(lhc::unique_id const& id);
-    bool canBeDestroyed(){return not players.black->socket->is_open() and not players.black->socket->is_open() and (aborted or finishGame.coroutine.done());}
+  cvk::future<game_winner> initDefaultMatch(lhc::player_t &&white,
+                                            lhc::player_t &&black);
+  std::error_code reconnectPlayer(lhc::player_t &&disconnected);
+  bool isIdForReconnect(lhc::unique_id const &id);
+  bool canBeDestroyed()const {
+    return not players.black->socket->is_open() and
+           not players.black->socket->is_open() and
+           (aborted or finishGame.coroutine.done());}
 
 private:
     DefaultCoroutine receivedFromWhite();

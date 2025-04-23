@@ -16,7 +16,7 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
     assert(white->id not_eq black->id);
 
     board = Board::initBoard(Board::Variant::default_);
-    auto allPieces = board.getAllPieces();
+    auto allPieces = board->getAllPieces();
     
     lhc::protocol::PacketHeader headerW{
         sizeof(lhc::protocol::PacketHeader) + allPieces.binSize(),
@@ -52,16 +52,37 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
 }
 
 std::error_code MatchControl::reconnectPlayer(lhc::player_t&& disconnected){
+    auto sendAllPieces = [](std::reference_wrapper<lhc::player_t> pl,
+                    const auto allPieces,[[maybe_unused]] const lhc::unique_id id
+                )->cvk::coroutine_t
+    {
+        assert(pl.get()->id == id);
+        lhc::protocol::PacketHeader header{
+            sizeof(lhc::protocol::PacketHeader) + allPieces.binSize(),
+            pl.get()->id,
+            lhc::protocol::action::sendAllBoardPieces
+        };
+
+        std::error_code error_code = co_await cvk::socket::await::sendPacket(
+            pl.get()->socket.value(), header, allPieces.convertToStream());
+        if(error_code){
+            //todo log
+            // throw std::runtime_error(std::string("error during sending all board pieces in initDefaultMatch: ")+=error_code.message());
+        }
+    };
+
     if(aborted or finishGame.coroutine.done()){
         return std::make_error_code(std::errc::connection_aborted);
     }else if(disconnected->id == players.black->id){
         assert(disconnected->side == figure_side::invalid);
         disconnected->side = figure_side::black;
         players.black = std::move(disconnected);
+        sendAllPieces(std::ref(players.black), board->getAllPieces(),players.black->id);
     }else if(disconnected->id == players.white->id){
         assert(disconnected->side == figure_side::invalid);
         disconnected->side = figure_side::white;
         players.white = std::move(disconnected);
+        sendAllPieces(std::ref(players.white), board->getAllPieces(),players.white->id);
     }else{
         return std::make_error_code(std::errc::invalid_argument);
     }
@@ -142,12 +163,12 @@ cvk::future<Unit> MatchControl::answerOnlyAction(lhc::player_t& player, lhc::pro
 }
 cvk::future<Unit> MatchControl::broadcastPieceMove(lhc::protocol::payload::piece_move const& move){
     lhc::protocol::PacketHeader headerW{
-        sizeof(lhc::protocol::PacketHeader),
+        sizeof(lhc::protocol::PacketHeader)+sizeof(move),
         players.white->id,
         lhc::protocol::action::movePieceBroadcast
     };
     lhc::protocol::PacketHeader headerB{
-        sizeof(lhc::protocol::PacketHeader),
+        sizeof(lhc::protocol::PacketHeader)+sizeof(move),
         players.white->id,
         lhc::protocol::action::movePieceBroadcast
     };
@@ -189,7 +210,7 @@ cvk::future<Unit> MatchControl::processPacket(lhc::player_t& player, cvk::socket
         }
         // std::memcpy(&piece_move,packet->getPayload().data(),sizeof(piece_move));            
         std::ranges::copy(packet->getPayload(),reinterpret_cast<std::byte*>(&piece_move));
-        moveResult res = movement::entryMove(board, piece_move);
+        moveResult res = movement::entryMove(*board, piece_move);
         if(res == disallowAction){
             co_await answerOnlyAction(player, lhc::protocol::action::wrongMovePiece);
         }else if(res == allowAction){
