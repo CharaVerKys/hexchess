@@ -48,16 +48,16 @@ void MatchWidget::setStyles(){
         color: #5b3e2b; 
     }
     QPushButton {
-        background-color: #c98c46;
+        background-color: #8b5e3c;
         color: white;
         padding: 6px 12px;
         border-radius: 6px;
     }
     QPushButton:hover {
-        background-color: #a66834; 
+        background-color: #a66834;
     }
     QPushButton:pressed {
-        background-color: #7a4c26; 
+        background-color: #7a4c26;
     }
 )");
 }

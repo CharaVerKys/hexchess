@@ -11,14 +11,17 @@ MatchListWidget::MatchListWidget(QWidget *parent)
     containerWidget = new QWidget;
     containerLayout = new QVBoxLayout(containerWidget);
     containerLayout->setAlignment(Qt::AlignTop);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
+    containerLayout->setSpacing(1);
 
     scrollArea->setWidget(containerWidget);
 
     auto *mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(scrollArea);
-    containerLayout->setSpacing(1);
-    containerLayout->setContentsMargins(0, 0, 0, 0);
     scrollArea->setStyleSheet("QScrollArea { border: none; }");
+    scrollArea->viewport()->setStyleSheet("background-color: #c98c46;");
+
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
