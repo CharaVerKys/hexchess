@@ -1,3 +1,4 @@
+#include "controlwindow.hpp"
 #include "matchlistwidget.hpp"
 #include <QApplication>
 #include <buttonswidget.hpp>
@@ -19,6 +20,12 @@ int main(int argc, char *argv[]) {
 
     ButtonsWidget w_;
     w_.show();
+
+
+    ControlWindow window;
+    window.onListOfAllMatchesReceived(all);
+    window.show();
+
 
     return app.exec();
 }

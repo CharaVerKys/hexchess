@@ -179,7 +179,7 @@ HexAndPiece& BoardSceneWidget::getCellAt(lhc::position const& pos){
 }
 
 GraphicPiece::ptr_type BoardSceneWidget::getPieceGraphicItem(figure_type const& type, figure_side const& side){
-     QString baseDir = "/home/charaverk/Pictures/chess/";
+     QString baseDir = "/home/charaverk/Pictures/chess/";//todo
      QPixmap map;
      QString wb;
      switch (side) {

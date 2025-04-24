@@ -15,6 +15,8 @@ MatchListWidget::MatchListWidget(QWidget *parent)
     containerLayout->setSpacing(1);
 
     scrollArea->setWidget(containerWidget);
+    scrollArea->setMinimumHeight(200);
+    scrollArea->setMaximumHeight(800);
 
     auto *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
