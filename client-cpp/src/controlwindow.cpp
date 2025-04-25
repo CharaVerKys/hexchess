@@ -38,3 +38,6 @@ void ControlWindow::onListOfAllMatchesReceived(lhc::protocol::payload::listOfAll
     layout()->addWidget(buttonsWidget);
     setFixedWidth(std::max(matchesList->size().width(), buttonsWidget->size().width()));
 }
+void ControlWindow::cantCreateMatch(){
+    buttonsWidget->clickAtDeleteMatchBtn();
+}

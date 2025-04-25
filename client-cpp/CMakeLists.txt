@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.11)
 add_executable(client-cpp
     "src/boardscene.cpp"
     "src/main.cpp"
+    "src/asio.cpp"
     "src/interfaceasio.cpp"
     "src/matchwidget.cpp"
     "src/matchlistwidget.cpp"

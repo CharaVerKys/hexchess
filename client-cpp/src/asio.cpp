@@ -3,7 +3,7 @@
 #include <asio/connect.hpp>
 #include <filesystem>
 
-inline Asio::~Asio(){
+Asio::~Asio(){
     if(clientId){
         std::ofstream stream("playerId");
         if(stream.is_open() and stream.good()){

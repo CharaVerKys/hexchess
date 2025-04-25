@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.11)
 add_executable(displayWidgets_debug
     display.cpp
     "${CMAKE_SOURCE_DIR}/client-cpp/src/matchwidget.cpp"
+    "${CMAKE_SOURCE_DIR}/client-cpp/src/asio.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/matchlistwidget.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/buttonswidget.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/controlwindow.cpp"

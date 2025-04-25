@@ -32,6 +32,10 @@ void ClientController::receiveListOfAllBoardPieces(lhc::protocol::payload::allBo
     waitForAllBoardPieces = false;
 }
 
+void ClientController::onCantCreateMatch(){
+    control->cantCreateMatch();
+}
+
 void ClientController::onCreateMatch(figure_side side){
     if(waitForAllBoardPieces){return;}
     emit createMatch(side);
