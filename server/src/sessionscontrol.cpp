@@ -87,12 +87,28 @@ cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, 
         auto pred = [&userID](MatchControl & val){
                 return val.isIdForReconnect(userID);
             };
-        if(allOpenSessions.contains(userID)){
-            auto ptr = std::move(allOpenSessions.at(userID));
-            allOpenSessions.remove(userID);
+        if(auto it = std::ranges::find_if(matches,pred); it not_eq matches.end()){
+            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(userID);
+            player->socket = std::move(socket);
+            std::error_code ec = it->reconnectPlayer(std::move(player));
+            assert(not ec);
+        }
+        else if(allOpenSessions.contains(userID)){
+            auto pld_ = packet->getPayload();
+            lhc::unique_id targetId;
+            if(pld_.size() not_eq sizeof(lhc::unique_id)){
+                socket.close();
+                //todo log
+                co_return;
+            }
+            std::memcpy(&targetId, pld_.data(), pld_.size());
+            if(targetId == 0){socket.close(); co_return;}
+
+            auto ptr = std::move(allOpenSessions.at(targetId));
+            allOpenSessions.remove(targetId);
             matches.emplace_back();
             assert(not matches.back().canBeDestroyed());
-            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(userID);
+            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(targetId);
             player->socket = std::move(socket);
             if(ptr->side == figure_side::white){
                 player->side = figure_side::black;
@@ -104,12 +120,6 @@ cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, 
             }else{
                 std::abort(); //todo log
             }
-        }
-        else if(auto it = std::ranges::find_if(matches,pred); it not_eq matches.end()){
-            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(userID);
-            player->socket = std::move(socket);
-            std::error_code ec = it->reconnectPlayer(std::move(player));
-            assert(not ec);
         }else{
             //todo log, echo "no such game"
             socket.close();
@@ -179,7 +189,6 @@ void SessionsControl::processError(std::error_code const& ec, const int des){
 }
 void SessionsControl::event_deleteSession(lhc::protocol::PacketHeader header, asio::ip::tcp::socket socket){
     try{
-        assert(not allOpenSessions.at(header.userID)->socket->is_open());
         allOpenSessions.remove(header.userID);
     }catch(std::out_of_range const& e){
         //todo log
