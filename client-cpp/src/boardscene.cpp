@@ -91,6 +91,8 @@ QBrush BoardSceneWidget::choiceBrushColor(Color const& color){
         }break;
         /*unreachable*/case Color::invalid: std::abort();
     }
+    //?gcc fix
+    std::abort();
 }
 void BoardSceneWidget::initAllCells(){
     assert(not allCells);

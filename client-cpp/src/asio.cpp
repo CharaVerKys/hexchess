@@ -67,6 +67,7 @@ cvk::future<std::optional<cvk::socket::packet_t>> Asio::waitPacket(asio::ip::tcp
             co_return packet.value();
          break;}
         default:
+        [[maybe_unused]] int gccFixError;
     }
     co_return std::nullopt;
 }
@@ -140,7 +141,7 @@ cvk::future<bool> Asio::createMatch(figure_side side){
 
     if(echo){
         lhc::protocol::payload::createMatch createMatch_echo;
-        std::memcpy(&createMatch_echo,echo->getPayload().data(),sizeof(createMatch_echo));
+        std::memcpy(reinterpret_cast<char*>(&createMatch_echo),echo->getPayload().data(),sizeof(createMatch_echo));
         assert(createMatch_echo.side == createMatch_.side);
         assert(echo->getHeader() <=> header == std::strong_ordering::equal);
         assert(not sessionSocket);

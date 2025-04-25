@@ -70,7 +70,7 @@ cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, 
     assert(userID);
     if(packet->getHeader().action_ == lhc::protocol::action::createMatch){
         lhc::protocol::payload::createMatch payload;
-        std::memcpy(&payload,packet->getPayload().data(),sizeof(payload));
+        std::memcpy(reinterpret_cast<char*>(&payload),packet->getPayload().data(),sizeof(payload));
         std::vector<std::byte> echoPayload;
         echoPayload.resize(sizeof(payload));
         std::memcpy(echoPayload.data(),&payload,sizeof(payload));

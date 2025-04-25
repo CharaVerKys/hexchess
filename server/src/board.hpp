@@ -13,7 +13,6 @@
 class Board{
 public:
     enum class Variant : std::int8_t{default_};
-
 private:
     std::optional<std::array<Cell,91>> o_field;
 
