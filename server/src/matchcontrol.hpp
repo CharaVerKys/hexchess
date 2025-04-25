@@ -34,6 +34,7 @@ public:
   std::error_code reconnectPlayer(lhc::player_t &&disconnected);
   bool isIdForReconnect(lhc::unique_id const &id);
   bool canBeDestroyed()const {
+    //todo old matches should be terminated
     return not players.black->socket->is_open() and
            not players.black->socket->is_open() and
            (aborted or finishGame.coroutine.done());}

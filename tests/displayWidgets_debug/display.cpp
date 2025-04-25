@@ -1,3 +1,4 @@
+#include "clientcontroller.hpp"
 #include "controlwindow.hpp"
 #include "matchlistwidget.hpp"
 #include <QApplication>
@@ -7,25 +8,23 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    MatchListWidget w(nullptr);
     lhc::protocol::payload::listOfAllMatches all;
     all.vec =  
     {{figure_side::black, 123123},
     {figure_side::black, 55555555},
     {figure_side::white, 132333},};
-    w.initList(all);
-    w.setContentsMargins(0,0,0,0);
-    w.show();
+
+    ClientController controller;
+    controller.show();
+    controller.receiveListOfAllMatches(all);
+
+    // ControlWindow w;
+    // w.show();
+    // w.onListOfAllMatchesReceived(all);
     
-
-    ButtonsWidget w_;
-    w_.show();
-
-
-    ControlWindow window;
-    window.onListOfAllMatchesReceived(all);
-    window.show();
-
+    // MatchListWidget w_;
+    // w_.show();
+    // w_.initList(all);
 
     return app.exec();
 }

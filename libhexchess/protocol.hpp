@@ -57,6 +57,8 @@ namespace lhc::protocol{
           figure_side side;
           const std::uint8_t reserved[3] = {0};
         };
+        static_assert(sizeof(createMatch) == 4);
+
         struct match{figure_side side; lhc::unique_id id;};
         struct listOfAllMatches{
             std::vector<match> vec;
@@ -74,5 +76,10 @@ namespace lhc::protocol{
       lhc::unique_id userID;
       action action_;
       const std::uint8_t reserved[3] = {0};
+      std::strong_ordering operator<=>(const PacketHeader& other) const {
+          if (auto cmp = userID <=> other.userID; cmp not_eq std::strong_ordering::equal){ return cmp;}
+          if (auto cmp = totalSize <=> other.totalSize; cmp not_eq std::strong_ordering::equal){ return cmp;}
+          return action_ <=> other.action_;
+      }
     };
 }
