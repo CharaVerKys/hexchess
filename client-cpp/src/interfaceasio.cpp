@@ -1,6 +1,6 @@
 #include "interfaceasio.hpp"
 #include "asio.hpp"
-#include "asio.tpp"
+// #include "asio.tpp"
 #include "coroutinesthings.hpp"
 #include "threadcheck.hpp"
 
@@ -11,12 +11,18 @@ void InterfaceAsio::initAsioContext(){
 }
 
 void InterfaceAsio::onCreateMatch(figure_side side){
-    [](Asio<InterfaceAsio>* p_asio, figure_side side)->cvk::coroutine_t{
+    [](Asio* p_asio, InterfaceAsio* interfaceAsio, figure_side side)->cvk::coroutine_t{
         co_await p_asio->switchContextToAsio();
-        co_await p_asio->createMatch(side);
-        co_return;
-    }(asio_,side);
+        bool res = co_await p_asio->createMatch(side);
+        if(not res){
+            interfaceAsio->cantCreateMatch();
+        }
+    }(asio_,this,side);
 }
 
-void InterfaceAsio::setAsioPtr(Asio<InterfaceAsio>* ptr){asio_ = ptr;}
-
+void InterfaceAsio::onDeleteMatch(){
+    [](Asio* p_asio)->cvk::coroutine_t{
+        co_await p_asio->switchContextToAsio();
+        co_await p_asio->deleteMatch();
+    }(asio_);
+}

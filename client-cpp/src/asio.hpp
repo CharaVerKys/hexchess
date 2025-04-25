@@ -11,9 +11,9 @@
 
 //todo make another file
 
-template<class InterfaceAsio>
+// template<class InterfaceAsio>
+
 class Asio{
-    InterfaceAsio* interface = nullptr;
     std::optional<asio::ip::tcp::socket> sessionSocket;
     std::optional<lhc::unique_id> clientId;
     std::string serverDomain;
@@ -23,7 +23,6 @@ public:
     ~Asio();
     cvk::details::MoveToAsioThreadAwaiter switchContextToAsio(){return {static_objects::asio_context()};}
     void setServerDomain(std::string const& domain){serverDomain=domain;}
-    void setInterfaceAsioPtr(InterfaceAsio* ptr){interface = ptr;}
     void runContext(){
         execGuard = std::make_unique<asio::executor_work_guard<asio::io_context::executor_type>>(asio::make_work_guard(static_objects::asio_context()));
         static_objects::asio_context().run();
@@ -32,8 +31,8 @@ public:
     cvk::future<std::optional<cvk::socket::packet_t>> waitPacket(asio::ip::tcp::socket&);
 
     // [[nodiscard]] cvk::future<lhc::protocol::payload::listOfAllMatches> requestAllMatches();
-    cvk::future<Unit> createMatch(figure_side);
-    // cvk::future<Unit> deleteMatch();
+    cvk::future<bool> createMatch(figure_side);
+    cvk::future<Unit> deleteMatch();
     // cvk::future<Unit> connectToMatch();
     
     // cvk::future<Unit> commitMove();
@@ -46,12 +45,12 @@ private:
 
 };
 
-template<class InterfaceAsio>
-inline Asio<InterfaceAsio>::~Asio(){
-    if(clientId){
-        std::ofstream stream("playerId");
-        if(stream.is_open() and stream.good()){
-            stream << *clientId;
-        }
-    }
-}
+// template<class InterfaceAsio>
+// inline Asio::~Asio(){
+//     if(clientId){
+//         std::ofstream stream("playerId");
+//         if(stream.is_open() and stream.good()){
+//             stream << *clientId;
+//         }
+//     }
+// }

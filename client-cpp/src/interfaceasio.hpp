@@ -3,7 +3,7 @@
 #include <qobject.h>
 #include "types.hpp"
 
-template<class InterfaceAsio_t>
+// template<class InterfaceAsio_t>
 class Asio;
 
 class InterfaceAsio : public QObject{
@@ -16,7 +16,7 @@ public slots:
     // api communication
     // void onRequestAllMatches();
     void onCreateMatch(figure_side);
-    // void onDeleteMatch();
+    void onDeleteMatch();
     // void onConnectToMatch();
     
     // // socket
@@ -35,10 +35,12 @@ signals:
     void sendNextMove();
     // void onInvalidMoveAnswer();
 
+    void cantCreateMatch();
+
 public:
-    void setAsioPtr(Asio<InterfaceAsio>* ptr);
+    void setAsioPtr(Asio* ptr){asio_ = ptr;}
 
 private:
-    Asio<InterfaceAsio>* asio_;
+    Asio* asio_;
 
 };

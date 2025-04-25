@@ -11,9 +11,9 @@ int main(int argc, char *argv[]) {
 
     checkThread(&mainThreadID);
 
-    Asio<InterfaceAsio> asio_;
+    Asio asio_;
     InterfaceAsio interfaceAsio;
-    asio_.setInterfaceAsioPtr(&interfaceAsio);
+    // asio_.setInterfaceAsioPtr(&interfaceAsio);
     asio_.setServerDomain("localhost"); //todo config
     interfaceAsio.setAsioPtr(&asio_);
     QThread asioThread;
@@ -26,7 +26,10 @@ int main(int argc, char *argv[]) {
 
     //from main context to main context and then redirect to asio context
     QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onCreateMatch, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onDeleteMatch, Qt::DirectConnection);
 
+    //from asio context to main context
+    QObject::connect(&interfaceAsio,&InterfaceAsio::cantCreateMatch,&clientController,&ClientController::onCantCreateMatch, Qt::QueuedConnection);
 
 
     clientController.show();

@@ -179,11 +179,12 @@ void SessionsControl::processError(std::error_code const& ec, const int des){
 }
 void SessionsControl::event_deleteSession(lhc::protocol::PacketHeader header, asio::ip::tcp::socket socket){
     try{
+        assert(not allOpenSessions.at(header.userID)->socket->is_open());
         allOpenSessions.remove(header.userID);
     }catch(std::out_of_range const& e){
         //todo log
-        socket.close();
     }
+    socket.close();
 }
 void SessionsControl::event_requestListOfAllSessions(lhc::protocol::PacketHeader header, asio::ip::tcp::socket socket){
     sendListOfAllSessions(header, std::move(socket));
@@ -206,6 +207,11 @@ cvk::coroutine_t SessionsControl::sendListOfAllSessions(lhc::protocol::PacketHea
     socket.close();
 }
 void SessionsControl::deleteOldMatches(){
+    for(lhc::player_t const& player : allOpenSessions.getUnderlineValueVector()){
+        if(not player->socket->is_open()){
+            allOpenSessions.remove(player->id);
+        }
+    }
     std::erase_if(matches, [](MatchControl const& match) {
         return match.canBeDestroyed();
     });

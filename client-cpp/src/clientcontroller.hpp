@@ -19,6 +19,8 @@ public slots:
     // void receiveAbort();
     // void receiveWin(figure_side);
 
+    void onCantCreateMatch();
+
 signals:
     void connectToMatch(lhc::unique_id);
     void createMatch(figure_side);
