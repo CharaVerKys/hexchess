@@ -33,7 +33,11 @@ void ControlWindow::onChoiceMatch(lhc::unique_id id){
 void ControlWindow::onListOfAllMatchesReceived(lhc::protocol::payload::listOfAllMatches all){
     matchesList->setParent(nullptr);
     matchesList->adjustSize();
+    buttonsWidget->setParent(nullptr);
+    buttonsWidget->adjustSize();
+
     matchesList->initList(all);
+
     layout()->addWidget(matchesList);
     layout()->addWidget(buttonsWidget);
     setFixedWidth(std::max(matchesList->size().width(), buttonsWidget->size().width()));

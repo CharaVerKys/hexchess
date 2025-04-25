@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qobject.h>
+#include "protocol.hpp"
 #include "types.hpp"
 
 // template<class InterfaceAsio_t>
@@ -14,7 +15,7 @@ public slots:
     void initAsioContext();
 
     // api communication
-    // void onRequestAllMatches();
+    void onRequestAllMatches();
     void onCreateMatch(figure_side);
     void onDeleteMatch();
     // void onConnectToMatch();
@@ -26,7 +27,7 @@ public slots:
 signals:
 
     // api communication
-    void sendAllMatches();
+    void sendAllMatches(lhc::protocol::payload::listOfAllMatches);
     
     // socket
     void sendAllPieces();

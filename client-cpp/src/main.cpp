@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <qthread.h>
 
+#include <qtimer.h>
+
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -26,16 +28,18 @@ int main(int argc, char *argv[]) {
 
     //from main context to main context and then redirect to asio context
     QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onCreateMatch, Qt::DirectConnection);
-    QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onDeleteMatch, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::deleteMatch,&interfaceAsio,&InterfaceAsio::onDeleteMatch, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::requestListOfAllMatches,&interfaceAsio,&InterfaceAsio::onRequestAllMatches, Qt::DirectConnection);
 
     //from asio context to main context
     QObject::connect(&interfaceAsio,&InterfaceAsio::cantCreateMatch,&clientController,&ClientController::onCantCreateMatch, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::sendAllMatches,&clientController,&ClientController::receiveListOfAllMatches, Qt::QueuedConnection);
 
 
     clientController.show();
+    
 
-
-
+    interfaceAsio.onRequestAllMatches();
 
 
     /*

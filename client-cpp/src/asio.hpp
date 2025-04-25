@@ -7,7 +7,6 @@
 #include <optional>
 #include <asio/ip/tcp.hpp>
 #include <packetsocketoperations.hpp>
-#include <fstream>
 
 //todo make another file
 
@@ -30,7 +29,7 @@ public:
 
     cvk::future<std::optional<cvk::socket::packet_t>> waitPacket(asio::ip::tcp::socket&);
 
-    // [[nodiscard]] cvk::future<lhc::protocol::payload::listOfAllMatches> requestAllMatches();
+    [[nodiscard]] cvk::future<lhc::protocol::payload::listOfAllMatches> requestAllMatches();
     cvk::future<bool> createMatch(figure_side);
     cvk::future<Unit> deleteMatch();
     // cvk::future<Unit> connectToMatch();

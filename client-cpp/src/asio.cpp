@@ -1,4 +1,5 @@
 #include "asio.hpp"
+#include <fstream>
 #include "coroutinesthings.hpp"
 #include <asio/connect.hpp>
 #include <filesystem>
@@ -58,19 +59,46 @@ cvk::future<std::optional<cvk::socket::packet_t>> Asio::waitPacket(asio::ip::tcp
                 co_await waitPacket(socket);
             }
         }break;
-        case action::sendListOfAllMatches:{
-            //!signal
-            co_return packet.value();
-        }break;
         case action::wrongMovePiece:{
             //todo
         }break;
-        case action::createMatch:{
+        {case action::sendListOfAllMatches:
+         case action::createMatch:
             co_return packet.value();
-        }break;
+         break;}
         default:
     }
     co_return std::nullopt;
+}
+cvk::future<lhc::protocol::payload::listOfAllMatches> Asio::requestAllMatches(){
+    auto o_socket = co_await connectToServer();
+    if(not o_socket){
+        //todo ...
+        co_return{};
+    }
+    asio::ip::tcp::socket socket  = std::move(o_socket.value());
+
+    lhc::protocol::PacketHeader header{
+        sizeof(lhc::protocol::PacketHeader),
+        co_await getId(),
+        lhc::protocol::action::requestListOfAllMatches,
+    };
+    
+    std::error_code ec = co_await cvk::socket::await::sendPacket(socket,header,{});
+
+    if(ec){
+        // todo
+        co_return{};
+    }
+
+    auto packet = co_await waitPacket(socket);
+    if(not packet){
+        co_return{};
+    } 
+    lhc::protocol::payload::listOfAllMatches all;
+    all.vec.resize(packet->get()->getPayload().size() / sizeof(lhc::protocol::payload::match));
+    std::memcpy(all.vec.data(), packet->get()->getPayload().data(),packet->get()->getPayload().size());
+    co_return all;
 }
 
 // template<class InterfaceAsio>
@@ -103,12 +131,16 @@ cvk::future<bool> Asio::createMatch(figure_side side){
     }
 
     auto res = co_await waitPacket(socket);
-    auto echo = res.value_or(
-        (co_await waitPacket(socket)).value_or(nullptr)
-    );
+    cvk::socket::packet_t echo;
+    if(not res){
+        res = co_await waitPacket(socket);
+        echo = res.value_or(nullptr);
+    }
+    echo = res.value_or(nullptr);
+
     if(echo){
         lhc::protocol::payload::createMatch createMatch_echo;
-        std::memcpy(&payload,echo->getPayload().data(),sizeof(payload));
+        std::memcpy(&createMatch_echo,echo->getPayload().data(),sizeof(createMatch_echo));
         assert(createMatch_echo.side == createMatch_.side);
         assert(echo->getHeader() <=> header == std::strong_ordering::equal);
         assert(not sessionSocket);
@@ -123,6 +155,7 @@ cvk::future<Unit> Asio::deleteMatch(){
         co_return{};
     }
     sessionSocket->close();
+    sessionSocket.reset();
 
     auto o_socket = co_await connectToServer();
     if(not o_socket){
@@ -187,13 +220,15 @@ cvk::future<std::optional<asio::ip::tcp::socket>> Asio::connectToServer(){
 // template<class InterfaceAsio>
 cvk::future<lhc::unique_id> Asio::getId(){
     if(clientId){
-        co_return std::move(clientId.value());
+        uint ret = clientId.value();
+        co_return std::move(ret);
     }
     if(std::filesystem::exists("playerId")){
         std::ifstream stream("playerId");
         if(stream.is_open() and stream.good()){
             stream >> *clientId;
-            co_return std::move(clientId.value());
+            uint ret = clientId.value();
+            co_return std::move(ret);
         }
     }
     auto socket = co_await connectToServer();
@@ -203,7 +238,8 @@ cvk::future<lhc::unique_id> Asio::getId(){
     if(not socket){
         throw std::runtime_error("connect to server error");
     }
-    co_return co_await requestId(*socket);
+    uint res = (clientId = co_await requestId(*socket)).value();
+    co_return res;
 }
 
 // template<class InterfaceAsio>

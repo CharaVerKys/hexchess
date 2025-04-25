@@ -26,4 +26,5 @@ private:
     QVBoxLayout *containerLayout;
     QWidget *containerWidget;
     QScrollArea* scrollArea;
+    uint16_t maxWidgetSizeHint = 0;
 };

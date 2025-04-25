@@ -27,25 +27,32 @@ MatchListWidget::MatchListWidget(QWidget *parent)
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
-void MatchListWidget::initList(lhc::protocol::payload::listOfAllMatches const& all){
+void MatchListWidget::initList(lhc::protocol::payload::listOfAllMatches const& all)
+{
+    assert(containerLayout->parent() == containerWidget);
+    delete containerWidget;
+    containerWidget = new QWidget;
+    containerLayout = new QVBoxLayout(containerWidget);
+    containerLayout->setAlignment(Qt::AlignTop);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
+    containerLayout->setSpacing(1);
+    maxWidgetSizeHint = 0;
 
+    scrollArea->setWidget(containerWidget);
     for(auto const& each : all.vec){
         addMatchWidget(each.side, each.id);
     }
-    setFixedWidth(size().width());
+    setFixedWidth(maxWidgetSizeHint);
 }
 
 void MatchListWidget::addMatchWidget(figure_side side, lhc::unique_id id)
 {
-    // static bool first = true;
-    // if(first){
-    //     first = false;
-    // }else{
-    // }
-
     auto *widget = new MatchWidget(this, side, id);
     containerLayout->addWidget(widget);
     connect(widget, &MatchWidget::connectClicked, this, &MatchListWidget::choosenMatch);
+    maxWidgetSizeHint = maxWidgetSizeHint >= widget->sizeHint().width() 
+        ? maxWidgetSizeHint 
+        : widget->sizeHint().width();
 
     auto *separator = new QFrame(this);
     separator->setFrameShape(QFrame::HLine);
