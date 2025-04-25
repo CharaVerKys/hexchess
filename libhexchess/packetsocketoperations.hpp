@@ -23,6 +23,9 @@ namespace cvk::socket{
             data.resize(16);
             std::memcpy(data.data(),&header,sizeof(header));
         }
+        void setHeader_noCheck(lhc::protocol::PacketHeader const& header){
+            std::memcpy(data.data(),&header,sizeof(header));
+        }
         void setPayload(std::vector<std::byte> const& payload){
             if(data.size() not_eq sizeof(lhc::protocol::PacketHeader)){
                 throw std::logic_error("invalid packet to set payload");
