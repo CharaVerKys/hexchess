@@ -10,8 +10,8 @@ ButtonsWidget::ButtonsWidget(QWidget *parent): QWidget(parent) {
     exitBtn = new QPushButton("Exit",this);
 
     QString baseDir = "/home/charaverk/Pictures/chess/";//todo
-    QPixmap map1(baseDir+"pawn-w.svg");
-    QPixmap map2(baseDir+"pawn-b.svg");
+    QPixmap map1(baseDir+"bishop-w.svg");
+    QPixmap map2(baseDir+"bishop-b.svg");
     QPixmap ico1(map1.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     QPixmap ico2(map2.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     QHBoxLayout *choiceLayout = new QHBoxLayout;
