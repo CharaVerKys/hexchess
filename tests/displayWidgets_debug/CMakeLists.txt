@@ -8,6 +8,8 @@ add_executable(displayWidgets_debug
     "${CMAKE_SOURCE_DIR}/client-cpp/src/matchlistwidget.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/buttonswidget.cpp"
     "${CMAKE_SOURCE_DIR}/client-cpp/src/controlwindow.cpp"
+    "${CMAKE_SOURCE_DIR}/client-cpp/src/boardscene.cpp"
+    "${CMAKE_SOURCE_DIR}/client-cpp/src/clientcontroller.cpp"
     )
 target_include_directories(displayWidgets_debug PRIVATE "${CMAKE_SOURCE_DIR}/client-cpp/src")
 target_link_libraries(displayWidgets_debug PUBLIC

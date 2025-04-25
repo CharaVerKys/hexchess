@@ -1,3 +1,4 @@
 .cache/*
 build/*
 log/server
+idpool.db
