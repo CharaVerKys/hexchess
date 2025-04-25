@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QVBoxLayout>
+#include <qscrollarea.h>
 #include "protocol.hpp"
 #include "types.hpp"
 
@@ -24,4 +25,5 @@ private:
 private:
     QVBoxLayout *containerLayout;
     QWidget *containerWidget;
+    QScrollArea* scrollArea;
 };

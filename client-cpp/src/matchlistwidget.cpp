@@ -1,11 +1,10 @@
 #include "matchlistwidget.hpp"
 #include "matchwidget.hpp"
-#include <qscrollarea.h>
 
 MatchListWidget::MatchListWidget(QWidget *parent)
     : QWidget(parent)
 {
-    auto *scrollArea = new QScrollArea(this);
+    scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
 
     containerWidget = new QWidget;
@@ -15,14 +14,14 @@ MatchListWidget::MatchListWidget(QWidget *parent)
     containerLayout->setSpacing(1);
 
     scrollArea->setWidget(containerWidget);
-    scrollArea->setMinimumHeight(200);
-    scrollArea->setMaximumHeight(800);
+    scrollArea->setMinimumHeight(250);
+    scrollArea->setMaximumHeight(750);
 
     auto *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(scrollArea);
     scrollArea->setStyleSheet("QScrollArea { border: none; }");
-    scrollArea->viewport()->setStyleSheet("background-color: #c98c46;");
+    scrollArea->viewport()->setStyleSheet("background-color: #c97046;");
 
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -33,25 +32,25 @@ void MatchListWidget::initList(lhc::protocol::payload::listOfAllMatches const& a
     for(auto const& each : all.vec){
         addMatchWidget(each.side, each.id);
     }
-
-    setFixedWidth(sizeHint().width());
+    setFixedWidth(size().width());
 }
 
 void MatchListWidget::addMatchWidget(figure_side side, lhc::unique_id id)
 {
-    static bool first = true;
-    if(first){
-        first = false;
-    }else{
-        auto *separator = new QFrame(this);
-        separator->setFrameShape(QFrame::HLine);
-        separator->setFrameShadow(QFrame::Sunken);
-        separator->setLineWidth(1);
-        separator->setMidLineWidth(0);
-        containerLayout->addWidget(separator);
-    }
+    // static bool first = true;
+    // if(first){
+    //     first = false;
+    // }else{
+    // }
 
     auto *widget = new MatchWidget(this, side, id);
     containerLayout->addWidget(widget);
     connect(widget, &MatchWidget::connectClicked, this, &MatchListWidget::choosenMatch);
+
+    auto *separator = new QFrame(this);
+    separator->setFrameShape(QFrame::HLine);
+    separator->setFrameShadow(QFrame::Sunken);
+    separator->setLineWidth(1);
+    separator->setMidLineWidth(0);
+    containerLayout->addWidget(separator);
 }
