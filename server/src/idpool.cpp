@@ -45,7 +45,7 @@ lhc::unique_id IdPool::getFreeId(){
 std::optional<std::pair<lhc::unique_id, std::chrono::system_clock::time_point>>
 IdPool::getIdFromDb(const lhc::unique_id& id) {
     using clock = std::chrono::system_clock;
-    SQLite::Statement query(db, "SELECT id, ts FROM idpool WHERE id = ?");
+    SQLite::Statement query(db, "SELECT id, timesec FROM idpool WHERE id = ?");
     query.bind(1, id);
 
     if (query.executeStep()) {
@@ -63,8 +63,8 @@ void IdPool::addToCache(std::pair<lhc::unique_id,std::chrono::system_clock::time
     if(cache.map.size() > cache.maxCacheSize){
         loadFromCacheToDb();
         delete30doIds();
+        cache.map.clear();
     }
-    cache.map.clear();
     cache.map.insert(toAdd);
 }
 
