@@ -1,7 +1,11 @@
 #include "sessionscontrol.hpp"
+#include "log/write"
 #include <algorithm>
 #include <asio/use_awaitable.hpp> 
 #include <call_.hpp>
+
+using namespace cvk::log;
+using write_ = cvk::write;
 
 void SessionsControl::init(std::uint16_t serverPort){
     asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(),serverPort);
@@ -11,6 +15,7 @@ void SessionsControl::init(std::uint16_t serverPort){
     acceptor->bind(endpoint);
     acceptor->listen(asio::socket_base::max_listen_connections);
     acceptorCoroutine = acceptorLoop();
+    pool.emplace("idpool.db");
     bool res = acceptorCoroutine.resume();
     if(not res){
         throw std::domain_error("cant run coroutine");
@@ -25,13 +30,15 @@ DefaultCoroutine SessionsControl::acceptorLoop(){
         std::error_code ec_;
         acceptor->async_accept(socket,[&ec_, cont = this_coro](std::error_code ec){ec_ = ec; cont();});
         co_await std::suspend_always{};
+        write_(to::main) << lvl::good << "connection on socket " << socket.native_handle() << " begins";
         if(ec_){
-            processError(ec_);
+            processError(ec_, socket.native_handle());
             continue;
         }
         // ? coroutine
         acceptorCallback(std::move(socket));
     }//while
+    write_(to::main) << "exiting";
     acceptor->cancel();
     acceptor->close();
 }
@@ -41,17 +48,19 @@ cvk::coroutine_t SessionsControl::acceptorCallback(asio::ip::tcp::socket socket)
     deleteOldMatches();// ?just call it here, no reason to exactly here
 
     if(not packet.has_value()){
-        processError(packet.error());
+        processError(packet.error(), socket.native_handle());
         socket.close(); // ? if not already
         co_return;
     }
+    write_(to::main)<<lvl::good << "on socket " << socket.native_handle() << " received";
     upgradeToSocket_bool upgrade;
     try{
         upgrade = co_await processSuccess(packet.value(), socket);
     }catch(std::logic_error const&e){
-        //log
+        write_(to::main)<<lvl::error << "exception: " << e.what();
     }
     if(upgrade){
+        write_(to::main)<<lvl::good << "on socket " << socket.native_handle() << " upgrade";
         upgradeToSocket(packet.value(), std::move(socket));
     }
     co_return;
@@ -62,7 +71,15 @@ cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, 
     if(packet->getHeader().action_ == lhc::protocol::action::createMatch){
         lhc::protocol::payload::createMatch payload;
         std::memcpy(&payload,packet->getPayload().data(),sizeof(payload));
+        std::vector<std::byte> echoPayload;
+        echoPayload.resize(sizeof(payload));
+        std::memcpy(echoPayload.data(),&payload,sizeof(payload));
         lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(userID, payload.side);
+        std::error_code ec = co_await cvk::socket::await::sendPacket(socket,packet->getHeader(),echoPayload);
+        if(ec){
+            //todo log
+            co_return;
+        }
         player->socket = std::move(socket);
         allOpenSessions.insert(userID, std::move(player));
     }
@@ -157,8 +174,8 @@ cvk::future<bool> SessionsControl::checkGenId(cvk::socket::packet_t packet, asio
     co_return true;
 }
 
-void SessionsControl::processError(std::error_code const& ec){
-    (void)ec;
+void SessionsControl::processError(std::error_code const& ec, const int des){
+    write_(to::main) << lvl::error << des << ": " << ec.message();
 }
 void SessionsControl::event_deleteSession(lhc::protocol::PacketHeader header, asio::ip::tcp::socket socket){
     try{

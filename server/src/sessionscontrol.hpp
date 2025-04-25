@@ -23,7 +23,7 @@ private:
     using upgradeToSocket_bool = bool;
     cvk::future<upgradeToSocket_bool> processSuccess(cvk::socket::packet_t, asio::ip::tcp::socket&/*consume socket if return false*/);
     cvk::future<bool> checkGenId(cvk::socket::packet_t, asio::ip::tcp::socket&);//?return 'completed'
-    void processError(std::error_code const&); // same for acceptor and reading, at least for now
+    void processError(std::error_code const&, const int descriptor); // same for acceptor and reading, at least for now
     
     void event_deleteSession(lhc::protocol::PacketHeader header, asio::ip::tcp::socket);
     void event_requestListOfAllSessions(lhc::protocol::PacketHeader header, asio::ip::tcp::socket);
