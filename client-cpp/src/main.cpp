@@ -1,19 +1,17 @@
 #include "asio.hpp"
-#include "boardscene.hpp"
+#include "clientcontroller.hpp"
 #include "interfaceasio.hpp"
+#include "threadcheck.hpp"
 #include <QApplication>
-#include <iostream>
 #include <qthread.h>
 
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    BoardSceneWidget w;
-    w.setFixedSize(1200,800);
-    
+    checkThread(&mainThreadID);
+
     Asio<InterfaceAsio> asio_;
-    // std::unique_ptr<InterfaceAsio> interfaceAsio = std::make_unique<InterfaceAsio>();
     InterfaceAsio interfaceAsio;
     asio_.setInterfaceAsioPtr(&interfaceAsio);
     asio_.setServerDomain("localhost"); //todo config
@@ -21,9 +19,17 @@ int main(int argc, char *argv[]) {
     QThread asioThread;
     interfaceAsio.moveToThread(&asioThread);
 
+    asioThread.start();
+    QMetaObject::invokeMethod(&interfaceAsio,"initAsioContext",Qt::QueuedConnection);
+
+    ClientController clientController;
+
+    //from main context to main context and then redirect to asio context
+    QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onCreateMatch, Qt::DirectConnection);
 
 
 
+    clientController.show();
 
 
 

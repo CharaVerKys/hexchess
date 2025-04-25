@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qobject.h>
+#include "types.hpp"
 
 template<class InterfaceAsio_t>
 class Asio;
@@ -13,14 +14,14 @@ public slots:
     void initAsioContext();
 
     // api communication
-    void onRequestAllMatches();
-    void onCreateMatch();
-    void onDeleteMatch();
-    void onConnectToMatch();
+    // void onRequestAllMatches();
+    void onCreateMatch(figure_side);
+    // void onDeleteMatch();
+    // void onConnectToMatch();
     
-    // socket
-    void onCommitMove();
-    void onAbortGame();
+    // // socket
+    // void onCommitMove();
+    // void onAbortGame();
 
 signals:
 
