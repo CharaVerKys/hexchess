@@ -18,7 +18,7 @@ public slots:
     void onRequestAllMatches();
     void onCreateMatch(figure_side);
     void onDeleteMatch();
-    // void onConnectToMatch();
+    void onConnectToMatch(lhc::unique_id);
     
     // // socket
     // void onCommitMove();
@@ -37,6 +37,7 @@ signals:
     // void onInvalidMoveAnswer();
 
     void cantCreateMatch();
+    void connectToMatchFail();
 
 public:
     void setAsioPtr(Asio* ptr){asio_ = ptr;}

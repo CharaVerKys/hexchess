@@ -34,3 +34,12 @@ void InterfaceAsio::onDeleteMatch(){
         co_await p_asio->deleteMatch();
     }(asio_);
 }
+void InterfaceAsio::onConnectToMatch(lhc::unique_id id){
+    [](Asio* p_asio, InterfaceAsio* interfaceAsio, uint id)->cvk::coroutine_t{
+        co_await p_asio->switchContextToAsio();
+        auto res = co_await p_asio->connectToMatch(id);
+        if(not res){
+            interfaceAsio->connectToMatchFail();
+        }
+    }(asio_,this, id);
+}

@@ -176,6 +176,43 @@ cvk::future<Unit> Asio::deleteMatch(){
     co_return{};
 }
 
+cvk::future<bool> Asio::connectToMatch(lhc::unique_id id){
+    assert(not sessionSocket);
+
+    auto o_socket = co_await connectToServer();
+    if(not o_socket){
+        //todo ...
+        co_return false;
+    }
+    std::vector<std::byte>pld_;
+    pld_.resize(sizeof(id));
+    std::memcpy(pld_.data(),&id,pld_.size());
+    lhc::protocol::PacketHeader header{
+        sizeof(lhc::protocol::PacketHeader) + pld_.size(),
+        co_await getId(),
+        lhc::protocol::action::connectToMatch,
+    };
+    
+    std::error_code ec = co_await cvk::socket::await::sendPacket(*o_socket,header,std::move(pld_));
+    if(ec){
+        // todo
+        co_return false;
+    }
+
+    sessionSocket = std::move(o_socket.value());
+    asio::steady_timer timer(static_objects::asio_context(), std::chrono::seconds(10));
+    auto h = co_await  cvk::co_getHandle();
+    timer.async_wait([h](auto){h();});
+    co_await std::suspend_always{};
+
+    auto expected = cvk::socket::reliable_is_open(sessionSocket.value());
+    if(expected){
+        co_return std::move(expected.value());
+    }
+    //todo log error code
+    co_return false;
+}
+
 // template<class InterfaceAsio>
 cvk::future<std::optional<asio::ip::tcp::socket>> Asio::connectToServer(){
     asio::ip::tcp::resolver resolver(static_objects::asio_context());

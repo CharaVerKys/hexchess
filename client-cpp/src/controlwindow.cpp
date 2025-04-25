@@ -31,6 +31,7 @@ void ControlWindow::onChoiceMatch(lhc::unique_id id){
 }
 
 void ControlWindow::onListOfAllMatchesReceived(lhc::protocol::payload::listOfAllMatches all){
+    if(all.vec.empty()){return;}
     matchesList->setParent(nullptr);
     matchesList->adjustSize();
     buttonsWidget->setParent(nullptr);

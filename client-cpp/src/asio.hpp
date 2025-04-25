@@ -32,7 +32,7 @@ public:
     [[nodiscard]] cvk::future<lhc::protocol::payload::listOfAllMatches> requestAllMatches();
     cvk::future<bool> createMatch(figure_side);
     cvk::future<Unit> deleteMatch();
-    // cvk::future<Unit> connectToMatch();
+    cvk::future<bool> connectToMatch(lhc::unique_id);
     
     // cvk::future<Unit> commitMove();
     // cvk::future<Unit> abortGame();
