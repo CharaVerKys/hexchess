@@ -38,6 +38,23 @@ namespace cvk::socket{
         }
     };
     using packet_t = std::shared_ptr<packet>;
+    inline tl::expected<bool,std::error_code> reliable_is_open(asio::ip::tcp::socket& socket){
+         if (!socket.is_open()) {
+        return false;
+    }
+    std::byte buffer;
+    asio::error_code ec;
+    socket.receive(asio::buffer(&buffer, 1),asio::socket_base::message_peek,ec);
+    if (not ec or
+        ec == asio::error::would_block or
+        ec == asio::error::try_again) {
+        return true;
+    }
+    if (ec == asio::error::eof or ec == asio::error::connection_reset) {
+        return false;
+    }
+    return tl::unexpected(ec);
+    }
     namespace await{
         struct sendPacket : public std::suspend_always{
             sendPacket(asio::ip::tcp::socket&, lhc::protocol::PacketHeader const&, std::vector<std::byte> const&);
