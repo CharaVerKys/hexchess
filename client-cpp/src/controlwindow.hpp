@@ -7,15 +7,14 @@
 class MatchListWidget;
 class ButtonsWidget;
 
-class ControlWindow : public QMainWindow{
+class ControlWindow : public QWidget{
     Q_OBJECT
 public:
-    ControlWindow();
+    ControlWindow(QWidget* parent = nullptr);
 
 public slots:
     void onChoiceMatch(lhc::unique_id id);
     void onListOfAllMatchesReceived(lhc::protocol::payload::listOfAllMatches);
-
 
 signals:
     void connectToMatch(lhc::unique_id id);
