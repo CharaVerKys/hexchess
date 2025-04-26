@@ -12,6 +12,8 @@ class ButtonsWidget : public QWidget {
 public:
     ButtonsWidget(QWidget *parent = nullptr);
     void clickAtDeleteMatchBtn(){deleteMatchBtn->click();}
+    void setText(QString);
+    void setId(lhc::unique_id);
 
 signals:
     void createMatchClicked(figure_side);
@@ -30,5 +32,6 @@ private:
     QPushButton *createMatchBtn;
     QPushButton *deleteMatchBtn;
     QPushButton *updateBtn;
+    QLabel* id;
     QPushButton *exitBtn;
 };

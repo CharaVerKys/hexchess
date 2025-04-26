@@ -20,6 +20,7 @@ public slots:
     // void receiveWin(figure_side);
 
     void onCantCreateMatch();
+    void onConnectToMatchFail();
 
 signals:
     void connectToMatch(lhc::unique_id);
@@ -28,6 +29,7 @@ signals:
     void deleteMatch();
     void abortGame();
     void makeMove(lhc::protocol::payload::piece_move);
+    void setId(lhc::unique_id);
 
 private slots:
     void onCreateMatch(figure_side);

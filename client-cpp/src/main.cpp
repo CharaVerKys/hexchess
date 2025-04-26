@@ -30,10 +30,13 @@ int main(int argc, char *argv[]) {
     QObject::connect(&clientController,&ClientController::createMatch,&interfaceAsio,&InterfaceAsio::onCreateMatch, Qt::DirectConnection);
     QObject::connect(&clientController,&ClientController::deleteMatch,&interfaceAsio,&InterfaceAsio::onDeleteMatch, Qt::DirectConnection);
     QObject::connect(&clientController,&ClientController::requestListOfAllMatches,&interfaceAsio,&InterfaceAsio::onRequestAllMatches, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::connectToMatch,&interfaceAsio,&InterfaceAsio::onConnectToMatch, Qt::DirectConnection);
 
     //from asio context to main context
     QObject::connect(&interfaceAsio,&InterfaceAsio::cantCreateMatch,&clientController,&ClientController::onCantCreateMatch, Qt::QueuedConnection);
     QObject::connect(&interfaceAsio,&InterfaceAsio::sendAllMatches,&clientController,&ClientController::receiveListOfAllMatches, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::connectToMatchFail,&clientController,&ClientController::onConnectToMatchFail, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::setId,&clientController,&ClientController::setId, Qt::QueuedConnection);
 
 
     clientController.show();

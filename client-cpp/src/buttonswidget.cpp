@@ -70,7 +70,10 @@ ButtonsWidget::ButtonsWidget(QWidget *parent): QWidget(parent) {
     mainLayout->addWidget(updateBtn);
 
     QHBoxLayout *exitLayout = new QHBoxLayout;
-    exitLayout->addStretch(); 
+    // exitLayout->addStretch(); 
+    id = new QLabel("your id");
+    exitLayout->addWidget(id);
+    id->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     exitLayout->addWidget(exitBtn);
     exitBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
@@ -107,6 +110,12 @@ ButtonsWidget::ButtonsWidget(QWidget *parent): QWidget(parent) {
             background-color: #7a4c26;
         }
     )");
+}
+void ButtonsWidget::setText(QString str){
+    status->setText(str);
+}
+void ButtonsWidget::setId(lhc::unique_id number){
+    id->setText(QString::number(number));
 }
 void ButtonsWidget::onCreateMatchClicked(){
     assert(status->isVisible());

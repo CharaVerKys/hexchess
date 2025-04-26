@@ -33,6 +33,7 @@ public:
     cvk::future<bool> createMatch(figure_side);
     cvk::future<Unit> deleteMatch();
     cvk::future<bool> connectToMatch(lhc::unique_id);
+    lhc::unique_id getUsedID(){return *clientId;}
     
     // cvk::future<Unit> commitMove();
     // cvk::future<Unit> abortGame();

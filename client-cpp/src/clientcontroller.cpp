@@ -16,6 +16,7 @@ ClientController::ClientController()
     connect(control, &ControlWindow::deleteMatch, this, &ClientController::onDeleteMatch);
     connect(control, &ControlWindow::requestListOfAllMatches,this, &ClientController::requestListOfAllMatches);
     connect(control, &ControlWindow::connectToMatch, this, &ClientController::onConnectToMatch);
+    connect(this, &ClientController::setId,control,&ControlWindow::setId);
 }
 
 void ClientController::receiveListOfAllMatches(lhc::protocol::payload::listOfAllMatches all){
@@ -34,6 +35,9 @@ void ClientController::receiveListOfAllBoardPieces(lhc::protocol::payload::allBo
 
 void ClientController::onCantCreateMatch(){
     control->cantCreateMatch();
+}
+void ClientController::onConnectToMatchFail(){
+    control->connectToMatchFail();
 }
 
 void ClientController::onCreateMatch(figure_side side){

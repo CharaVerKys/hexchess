@@ -38,6 +38,7 @@ signals:
 
     void cantCreateMatch();
     void connectToMatchFail();
+    void setId(lhc::unique_id);
 
 public:
     void setAsioPtr(Asio* ptr){asio_ = ptr;}

@@ -19,6 +19,7 @@ ControlWindow::ControlWindow(QWidget* parent)
     connect(buttonsWidget, &ButtonsWidget::updateClicked,this,&ControlWindow::requestListOfAllMatches);
     connect(buttonsWidget, &ButtonsWidget::createMatchClicked,this,&ControlWindow::createMatch);
     connect(buttonsWidget, &ButtonsWidget::deleteMatchClicked,this,&ControlWindow::deleteMatch);
+    connect(this, &ControlWindow::setId,buttonsWidget,&ButtonsWidget::setId);
     setMaximumWidth(buttonsWidget->sizeHint().width());
 }
 
@@ -45,4 +46,7 @@ void ControlWindow::onListOfAllMatchesReceived(lhc::protocol::payload::listOfAll
 }
 void ControlWindow::cantCreateMatch(){
     buttonsWidget->clickAtDeleteMatchBtn();
+}
+void ControlWindow::connectToMatchFail(){
+    buttonsWidget->setText("connect to match\nFAILED");
 }

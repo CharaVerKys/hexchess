@@ -15,6 +15,7 @@ void InterfaceAsio::onRequestAllMatches(){
         co_await p_asio->switchContextToAsio();
         auto res = co_await p_asio->requestAllMatches();
         interfaceAsio->sendAllMatches(res);
+        interfaceAsio->setId(p_asio->getUsedID());
     }(asio_,this);
 }
 
@@ -25,6 +26,7 @@ void InterfaceAsio::onCreateMatch(figure_side side){
         if(not res){
             interfaceAsio->cantCreateMatch();
         }
+        interfaceAsio->setId(p_asio->getUsedID());
     }(asio_,this,side);
 }
 
@@ -41,5 +43,6 @@ void InterfaceAsio::onConnectToMatch(lhc::unique_id id){
         if(not res){
             interfaceAsio->connectToMatchFail();
         }
+        interfaceAsio->setId(p_asio->getUsedID());
     }(asio_,this, id);
 }
