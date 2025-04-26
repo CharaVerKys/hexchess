@@ -37,7 +37,7 @@ namespace lhc::protocol{
             explicit allBoardPieces(std::vector<piece>&& vec) : v(std::move(vec)) {}
             allBoardPieces(){}
             std::vector<piece> const &getAllPieces() { return v; }
-            void parseFromStream(std::span<std::byte,1000>);
+            void parseFromStream(std::vector<std::byte> const&);
             std::vector<std::byte> convertToStream() const;
             std::size_t binSize()const{return v.size()*sizeof(piece);}
         };

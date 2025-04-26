@@ -29,6 +29,18 @@ MatchListWidget::MatchListWidget(QWidget *parent)
 
 void MatchListWidget::initList(lhc::protocol::payload::listOfAllMatches const& all)
 {
+    if(all.vec.empty()){
+        assert(containerLayout->parent() == containerWidget);
+        delete containerWidget;
+        containerWidget = new QWidget;
+        containerLayout = new QVBoxLayout(containerWidget);
+        containerLayout->setAlignment(Qt::AlignTop);
+        containerLayout->setContentsMargins(0, 0, 0, 0);
+        containerLayout->setSpacing(1);
+        maxWidgetSizeHint = 0;
+        scrollArea->setWidget(containerWidget);
+        return;
+    }
     assert(containerLayout->parent() == containerWidget);
     delete containerWidget;
     containerWidget = new QWidget;

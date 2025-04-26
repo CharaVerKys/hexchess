@@ -1,6 +1,7 @@
 #include "protocol.hpp"
+#include <iostream>
 
-void lhc::protocol::payload::allBoardPieces::parseFromStream(std::span<std::byte,1000> data){
+void lhc::protocol::payload::allBoardPieces::parseFromStream(std::vector<std::byte> const& data){
     v.resize(data.size()/sizeof(piece));
     std::memcpy(v.data(),data.data(),data.size());
 }

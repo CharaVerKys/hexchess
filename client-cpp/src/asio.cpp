@@ -260,7 +260,7 @@ Asio::waitSession(){
         case action::sendAllBoardPieces:{
             lhc::protocol::payload::allBoardPieces allPieces;
             auto f = packet->get()->getPayload();
-            allPieces.parseFromStream(std::span<std::byte,1000>{f.begin(),f.end()});
+            allPieces.parseFromStream({f.begin(),f.end()});
             assert(allPieces.getAllPieces().size() == 36);
             co_return {allPieces};
         }break;
