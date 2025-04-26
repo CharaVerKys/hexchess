@@ -31,12 +31,6 @@ enum class figure_side : std::int8_t{
     black   =  1,
 };
 
-enum game_winner : std::int8_t{
-    invalid_game_winner = -1,
-    white_win_the_game =  0,
-    black_win_the_game =  1,
-};
-
 namespace lhc{
     struct position{
         std::uint8_t column;

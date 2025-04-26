@@ -67,6 +67,12 @@ cvk::coroutine_t SessionsControl::acceptorCallback(asio::ip::tcp::socket socket)
 }
 cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, asio::ip::tcp::socket socket){
     lhc::unique_id userID = packet->getHeader().userID;
+    lhc::unique_id targetId;
+    if(packet->getHeader().totalSize > sizeof(lhc::protocol::PacketHeader)){
+        auto pld_ = packet->getPayload();
+        std::memcpy(&targetId, pld_.data(), pld_.size());
+    }
+ 
     assert(userID);
     if(packet->getHeader().action_ == lhc::protocol::action::createMatch){
         lhc::protocol::payload::createMatch payload;
@@ -93,22 +99,13 @@ cvk::coroutine_t SessionsControl::upgradeToSocket(cvk::socket::packet_t packet, 
             std::error_code ec = it->reconnectPlayer(std::move(player));
             assert(not ec);
         }
-        else if(allOpenSessions.contains(userID)){
-            auto pld_ = packet->getPayload();
-            lhc::unique_id targetId;
-            if(pld_.size() not_eq sizeof(lhc::unique_id)){
-                socket.close();
-                //todo log
-                co_return;
-            }
-            std::memcpy(&targetId, pld_.data(), pld_.size());
+        else if(allOpenSessions.contains(targetId)){
             if(targetId == 0){socket.close(); co_return;}
 
             auto ptr = std::move(allOpenSessions.at(targetId));
             allOpenSessions.remove(targetId);
             matches.emplace_back();
-            assert(not matches.back().canBeDestroyed());
-            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(targetId);
+            lhc::player_t player = std::make_unique<lhc::z_detail_player_type>(userID);
             player->socket = std::move(socket);
             if(ptr->side == figure_side::white){
                 player->side = figure_side::black;

@@ -1,8 +1,7 @@
 #include "matchcontrol.hpp"
-#include "coroutinesthings.hpp"
 #include "movement.hpp"
 
-cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, lhc::player_t&& black){
+cvk::coroutine_t MatchControl::initDefaultMatch(lhc::player_t white, lhc::player_t black){
     assert(white->socket.has_value() and black->socket.has_value());
     if(not white->socket->is_open()
     or not black->socket->is_open()
@@ -15,6 +14,9 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
     assert(black->id);
     assert(white->id not_eq black->id);
 
+    players.white = std::move(white);
+    players.black = std::move(black);
+
     board = Board::initBoard(Board::Variant::default_);
     auto allPieces = board->getAllPieces();
     
@@ -25,7 +27,7 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
     };
     lhc::protocol::PacketHeader headerB{
         sizeof(lhc::protocol::PacketHeader) + allPieces.binSize(),
-        players.white->id,
+        players.black->id,
         lhc::protocol::action::sendAllBoardPieces
     };
 
@@ -42,13 +44,6 @@ cvk::future<game_winner> MatchControl::initDefaultMatch(lhc::player_t&& white, l
 
     socketReceiveProcessLifetimeHandle.black = receivedFromBlack();
     socketReceiveProcessLifetimeHandle.white = receivedFromWhite();
-
-    finishGame.coroutine = co_await cvk::co_getHandle();
-    co_await std::suspend_always();
-    if(aborted){assert(finishGame.winner == invalid_game_winner);}
-    players.black->socket->close();
-    players.white->socket->close();
-    co_return std::move(finishGame.winner);
 }
 
 std::error_code MatchControl::reconnectPlayer(lhc::player_t&& disconnected){
@@ -71,7 +66,7 @@ std::error_code MatchControl::reconnectPlayer(lhc::player_t&& disconnected){
         }
     };
 
-    if(aborted or finishGame.coroutine.done()){
+    if(aborted){
         return std::make_error_code(std::errc::connection_aborted);
     }else if(disconnected->id == players.black->id){
         assert(disconnected->side == figure_side::invalid);
@@ -140,7 +135,6 @@ cvk::future<Unit> MatchControl::abortGame(){
         throw std::runtime_error(std::string("error during sending abort signal: ")+=error_code.message());
     }
     aborted = true;
-    asio::post(static_objects::asio_context(),[h = (finishGame.coroutine)]{assert(not h.done()); h.resume();});
     co_return {};
 }
 cvk::future<Unit> MatchControl::answerOnlyAction(lhc::player_t& player, lhc::protocol::action const& action_){
@@ -238,7 +232,5 @@ cvk::future<Unit> MatchControl::broadcastWin(game_winner const& win){
     }
     co_await answerOnlyAction(players.black, action);
     co_await answerOnlyAction(players.white, action);
-    finishGame.winner = win;
-    asio::post(static_objects::asio_context(),[h = (finishGame.coroutine)]{assert(not h.done()); h.resume();});
     co_return {};
 }

@@ -2,6 +2,7 @@
 
 #include "board.hpp"
 #include <future.hpp>
+#include "coroutinesthings.hpp"
 #include "defaultcoroutine.hpp"
 #include "unittype.h"
 #include "packetsocketoperations.hpp"
@@ -21,23 +22,19 @@ class MatchControl{
         lhc::player_t white, black;
     } players;
     struct{
-        std::coroutine_handle<> coroutine;
-        game_winner winner = game_winner::invalid_game_winner;
-    } finishGame;
-    struct{
         DefaultCoroutine white, black;
     } socketReceiveProcessLifetimeHandle;
 
 public:
-  cvk::future<game_winner> initDefaultMatch(lhc::player_t &&white,
-                                            lhc::player_t &&black);
+  cvk::coroutine_t initDefaultMatch(lhc::player_t white,
+                                            lhc::player_t black);
   std::error_code reconnectPlayer(lhc::player_t &&disconnected);
   bool isIdForReconnect(lhc::unique_id const &id);
   bool canBeDestroyed()const {
     //todo old matches should be terminated
-    return not players.black->socket->is_open() and
-           not players.black->socket->is_open() and
-           (aborted or finishGame.coroutine.done());}
+    return(not cvk::socket::reliable_is_open(players.white->socket.value()) and
+           not cvk::socket::reliable_is_open(players.black->socket.value()) ) or
+           aborted;}
 
 private:
     DefaultCoroutine receivedFromWhite();

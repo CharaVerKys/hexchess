@@ -5,7 +5,7 @@
 #include <log/write>
 
 int main(){
-    Logger::instance()->setLogDir("/home/charaverk/hexchess/log/server"); //todo create dir and make it variable
+    Logger::instance()->setLogDir("/home/charaverk/projects/hexchess/log/server"); //todo create dir and make it variable
     Logger::instance()->init();
     auto guard = asio::make_work_guard(static_objects::asio_context());
 
