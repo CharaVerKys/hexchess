@@ -13,11 +13,11 @@ public:
     ClientController();
 
 public slots:
-    // void receiveMove();
+    void receiveMove(lhc::protocol::payload::piece_move);
     void receiveListOfAllMatches(lhc::protocol::payload::listOfAllMatches);
     void receiveListOfAllBoardPieces(lhc::protocol::payload::allBoardPieces);
-    // void receiveAbort();
-    // void receiveWin(figure_side);
+    void receiveAbort();
+    void receiveWin(figure_side);
 
     void onCantCreateMatch();
     void onConnectToMatchFail();
@@ -29,6 +29,7 @@ signals:
     void deleteMatch();
     void abortGame();
     void makeMove(lhc::protocol::payload::piece_move);
+
     void setId(lhc::unique_id);
 
 private slots:

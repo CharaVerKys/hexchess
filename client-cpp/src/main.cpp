@@ -31,17 +31,22 @@ int main(int argc, char *argv[]) {
     QObject::connect(&clientController,&ClientController::deleteMatch,&interfaceAsio,&InterfaceAsio::onDeleteMatch, Qt::DirectConnection);
     QObject::connect(&clientController,&ClientController::requestListOfAllMatches,&interfaceAsio,&InterfaceAsio::onRequestAllMatches, Qt::DirectConnection);
     QObject::connect(&clientController,&ClientController::connectToMatch,&interfaceAsio,&InterfaceAsio::onConnectToMatch, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::abortGame,&interfaceAsio,&InterfaceAsio::onAbortGame, Qt::DirectConnection);
+    QObject::connect(&clientController,&ClientController::makeMove,&interfaceAsio,&InterfaceAsio::onCommitMove, Qt::DirectConnection);
 
     //from asio context to main context
     QObject::connect(&interfaceAsio,&InterfaceAsio::cantCreateMatch,&clientController,&ClientController::onCantCreateMatch, Qt::QueuedConnection);
     QObject::connect(&interfaceAsio,&InterfaceAsio::sendAllMatches,&clientController,&ClientController::receiveListOfAllMatches, Qt::QueuedConnection);
     QObject::connect(&interfaceAsio,&InterfaceAsio::connectToMatchFail,&clientController,&ClientController::onConnectToMatchFail, Qt::QueuedConnection);
     QObject::connect(&interfaceAsio,&InterfaceAsio::setId,&clientController,&ClientController::setId, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::sendAllPieces,&clientController,&ClientController::receiveListOfAllBoardPieces, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::sendNextMove,&clientController,&ClientController::receiveMove, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::triggerGameAbort,&clientController,&ClientController::receiveAbort, Qt::QueuedConnection);
+    QObject::connect(&interfaceAsio,&InterfaceAsio::triggerGameEnd,&clientController,&ClientController::receiveWin, Qt::QueuedConnection);
 
 
     clientController.show();
     
-
     interfaceAsio.onRequestAllMatches();
 
 

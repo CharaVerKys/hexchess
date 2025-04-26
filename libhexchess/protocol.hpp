@@ -35,6 +35,7 @@ namespace lhc::protocol{
             std::vector<piece> v;
           public:
             explicit allBoardPieces(std::vector<piece>&& vec) : v(std::move(vec)) {}
+            allBoardPieces(){}
             std::vector<piece> const &getAllPieces() { return v; }
             void parseFromStream(std::span<std::byte,1000>);
             std::vector<std::byte> convertToStream() const;
@@ -45,6 +46,10 @@ namespace lhc::protocol{
             piece_move(lhc::position from, figure_type ver_type, figure_side ver_side, lhc::position to)
             : from(from), ver_type(ver_type), ver_side(ver_side), to(to) {}
             piece_move(){}
+            piece_move(const piece_move &) = default;
+            piece_move(piece_move &&) = default;
+            piece_move &operator=(const piece_move &other){from = other.from; to = other.to; ver_side = other.ver_side; ver_type = other.ver_type; return*this;}
+            piece_move &operator=(piece_move &&other){from = other.from; to = other.to; ver_side = other.ver_side; ver_type = other.ver_type; return*this;}
             lhc::position from;
             figure_type ver_type;
             figure_side ver_side;

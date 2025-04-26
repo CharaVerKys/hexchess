@@ -16,7 +16,7 @@ public slots:
     void onChoiceMatch(lhc::unique_id id);
     void onListOfAllMatchesReceived(lhc::protocol::payload::listOfAllMatches);
     void cantCreateMatch();
-    void connectToMatchFail();
+    void setText(QString);
 
 signals:
     void connectToMatch(lhc::unique_id id);

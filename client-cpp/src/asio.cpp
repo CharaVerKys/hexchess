@@ -32,36 +32,6 @@ cvk::future<std::optional<cvk::socket::packet_t>> Asio::waitPacket(asio::ip::tcp
     }
     using lhc::protocol::action;
     switch (header.action_) {
-        case action::abortGame:{
-            //!signal
-            sessionSocket.reset();
-        }break;
-        case action::enemyTurn:{
-            // todo
-        }break;
-        case action::gameEnd_winBlack:{
-            //!signal
-            sessionSocket.reset();
-        }break;
-        case action::gameEnd_winWhite:{
-            //!signal
-            sessionSocket.reset();
-        }break;
-        case action::movePieceBroadcast:{
-            if(sessionSocket and sessionSocket->native_handle() == socket.native_handle()){
-                //!signal
-                co_await waitPacket(socket);
-            }
-        }break;
-        case action::sendAllBoardPieces:{
-            if(sessionSocket and sessionSocket->native_handle() == socket.native_handle()){
-                //!signal
-                co_await waitPacket(socket);
-            }
-        }break;
-        case action::wrongMovePiece:{
-            //todo
-        }break;
         {case action::sendListOfAllMatches:
          case action::createMatch:
             co_return packet.value();
@@ -212,6 +182,95 @@ cvk::future<bool> Asio::connectToMatch(lhc::unique_id id){
     }
     //todo log error code
     co_return false;
+}
+cvk::future<Unit> Asio::commitMove(lhc::protocol::payload::piece_move move){
+    if(not sessionSocket){
+        throw std::runtime_error("noSocket");
+    }
+    std::vector<std::byte>pld_;
+    pld_.resize(sizeof(move));
+    std::memcpy(pld_.data(),&move,pld_.size());
+    lhc::protocol::PacketHeader header{
+        sizeof(lhc::protocol::PacketHeader) + pld_.size(),
+        co_await getId(),
+        lhc::protocol::action::requestMovePiece,
+    };
+    
+    std::error_code ec = co_await cvk::socket::await::sendPacket(sessionSocket.value(),header,std::move(pld_));
+    if(ec){
+        // todo handle
+    }
+    co_return {};
+}
+cvk::future<Unit> Asio::abortGame(){
+    if(not sessionSocket){
+        throw std::runtime_error("noSocket");
+    }
+    lhc::protocol::PacketHeader header{
+        sizeof(lhc::protocol::PacketHeader),
+        co_await getId(),
+        lhc::protocol::action::abortGame,
+    };
+    
+    std::error_code ec = co_await cvk::socket::await::sendPacket(sessionSocket.value(),header,{});
+    if(ec){
+        // todo handle
+    }
+    co_return {};
+}
+
+cvk::future<std::variant<Asio::abortType,Asio::errorType,Asio::winGame,
+    lhc::protocol::payload::piece_move,
+    lhc::protocol::payload::allBoardPieces>>
+Asio::waitSession(){
+    if(not sessionSocket){
+        co_return {errorType{}};
+    }
+    auto packet = co_await cvk::socket::await::readPacket(sessionSocket.value());
+    if(not packet){
+        //handle
+        co_return {errorType{}};
+    }
+
+    auto header = packet->get()->getHeader();
+    using lhc::protocol::action;
+    switch (header.action_) {
+        case action::abortGame:{
+            sessionSocket.reset();
+            co_return {abortType{}};
+        }break;
+        case action::enemyTurn:{
+            // todo
+        }break;
+        case action::gameEnd_winBlack:{
+            sessionSocket.reset();
+            co_return {winGame{figure_side::black}};
+        }break;
+        case action::gameEnd_winWhite:{
+            sessionSocket.reset();
+            co_return {winGame{figure_side::white}};
+        }break;
+        case action::movePieceBroadcast:{
+            lhc::protocol::payload::piece_move move_;
+            auto payload = packet.value()->getPayload();
+            assert(payload.size() == sizeof(move_));
+            std::memcpy(reinterpret_cast<std::byte*>(&move_),payload.data(),payload.size());
+            co_return {move_};
+        }break;
+        case action::sendAllBoardPieces:{
+            lhc::protocol::payload::allBoardPieces allPieces;
+            auto f = packet->get()->getPayload();
+            allPieces.parseFromStream(std::span<std::byte,1000>{f.begin(),f.end()});
+            assert(allPieces.getAllPieces().size() == 36);
+            co_return {allPieces};
+        }break;
+        case action::wrongMovePiece:{
+            //todo
+        }break;
+        default:
+        [[maybe_unused]] int gccFixError;
+    }
+    co_return {errorType{}};
 }
 
 // template<class InterfaceAsio>

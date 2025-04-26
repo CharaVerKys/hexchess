@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qobject.h>
+#include "coroutinesthings.hpp"
 #include "protocol.hpp"
 #include "types.hpp"
 
@@ -21,8 +22,8 @@ public slots:
     void onConnectToMatch(lhc::unique_id);
     
     // // socket
-    // void onCommitMove();
-    // void onAbortGame();
+    void onCommitMove(lhc::protocol::payload::piece_move);
+    void onAbortGame();
 
 signals:
 
@@ -30,10 +31,10 @@ signals:
     void sendAllMatches(lhc::protocol::payload::listOfAllMatches);
     
     // socket
-    void sendAllPieces();
-    void triggerGameEnd();
+    void sendAllPieces(lhc::protocol::payload::allBoardPieces);
+    void triggerGameEnd(figure_side);
     void triggerGameAbort();
-    void sendNextMove();
+    void sendNextMove(lhc::protocol::payload::piece_move);
     // void onInvalidMoveAnswer();
 
     void cantCreateMatch();
@@ -42,8 +43,8 @@ signals:
 
 public:
     void setAsioPtr(Asio* ptr){asio_ = ptr;}
+    cvk::coroutine_t sessionWaitLoop();
 
 private:
-    Asio* asio_;
-
+    Asio* asio_ = nullptr;
 };

@@ -47,6 +47,6 @@ void ControlWindow::onListOfAllMatchesReceived(lhc::protocol::payload::listOfAll
 void ControlWindow::cantCreateMatch(){
     buttonsWidget->clickAtDeleteMatchBtn();
 }
-void ControlWindow::connectToMatchFail(){
-    buttonsWidget->setText("connect to match\nFAILED");
+void ControlWindow::setText(QString txt){
+    buttonsWidget->setText(txt);
 }

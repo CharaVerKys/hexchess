@@ -7,10 +7,9 @@
 #include <optional>
 #include <asio/ip/tcp.hpp>
 #include <packetsocketoperations.hpp>
+#include <variant>
 
 //todo make another file
-
-// template<class InterfaceAsio>
 
 class Asio{
     std::optional<asio::ip::tcp::socket> sessionSocket;
@@ -35,22 +34,19 @@ public:
     cvk::future<bool> connectToMatch(lhc::unique_id);
     lhc::unique_id getUsedID(){return *clientId;}
     
-    // cvk::future<Unit> commitMove();
-    // cvk::future<Unit> abortGame();
+    cvk::future<Unit> commitMove(lhc::protocol::payload::piece_move move);
+    cvk::future<Unit> abortGame();
+
+    struct abortType{};
+    struct errorType{};
+    struct winGame{figure_side s;};
+    cvk::future<std::variant<abortType,errorType,winGame,
+        lhc::protocol::payload::piece_move,
+        lhc::protocol::payload::allBoardPieces>>
+    waitSession();
 
 private:
     cvk::future<std::optional<asio::ip::tcp::socket>> connectToServer();
     cvk::future<lhc::unique_id> getId();
     cvk::future<lhc::unique_id> requestId(asio::ip::tcp::socket&);
-
 };
-
-// template<class InterfaceAsio>
-// inline Asio::~Asio(){
-//     if(clientId){
-//         std::ofstream stream("playerId");
-//         if(stream.is_open() and stream.good()){
-//             stream << *clientId;
-//         }
-//     }
-// }

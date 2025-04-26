@@ -28,7 +28,8 @@ void BoardSceneWidget::setAllPieces(std::vector<lhc::protocol::payload::piece> c
 
 void BoardSceneWidget::deletePiece(lhc::position pos, figure_type type, figure_side side){
     auto& cell = getCellAt(pos);
-    assert(cell.piece->type == type);
+    if(not cell.piece){return;}
+    assert(type == figure_type::invalid or cell.piece->type == type);
     assert(cell.piece->side == side);
     cell.piece = std::nullopt;
 }
