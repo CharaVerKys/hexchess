@@ -43,5 +43,5 @@ private:
     cvk::future<Unit> answerOnlyAction(lhc::player_t&, lhc::protocol::action const&);
     cvk::future<Unit> broadcastPieceMove(lhc::protocol::payload::piece_move const&);
     cvk::future<Unit> processPacket(lhc::player_t&, cvk::socket::packet_t const&);
-    cvk::future<Unit> broadcastWin(game_winner const&);
+    cvk::future<Unit> broadcastWin(figure_side const&);
 };

@@ -211,22 +211,22 @@ cvk::future<Unit> MatchControl::processPacket(lhc::player_t& player, cvk::socket
             co_await broadcastPieceMove(piece_move);
         }else if(res == allowAction_andVictoryBlack){
             co_await broadcastPieceMove(piece_move);
-            co_await broadcastWin(black_win_the_game);
+            co_await broadcastWin(figure_side::black);
         }else if(res == allowAction_andVictoryWhite){
             co_await broadcastPieceMove(piece_move);
-            co_await broadcastWin(white_win_the_game);
+            co_await broadcastWin(figure_side::white);
         }
     }
     co_return{};
 }
-cvk::future<Unit> MatchControl::broadcastWin(game_winner const& win){
+cvk::future<Unit> MatchControl::broadcastWin(figure_side const& win){
     lhc::protocol::action action;
     switch (win) {
-        case invalid_game_winner: std::abort();
-        case black_win_the_game:
+        case figure_side::invalid: std::abort();
+        case figure_side::black:
             action = lhc::protocol::action::gameEnd_winBlack;
         break;
-        case white_win_the_game:
+        case figure_side::white:
             action = lhc::protocol::action::gameEnd_winWhite;
         break;
     }
