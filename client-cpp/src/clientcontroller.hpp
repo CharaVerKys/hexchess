@@ -36,9 +36,14 @@ private slots:
     void onCreateMatch(figure_side);
     void onDeleteMatch();
     void onConnectToMatch(lhc::unique_id);
+    void onClicked(std::optional<lhc::position>, std::optional<figure_type>, std::optional<figure_side>);
 
 private:
     bool waitForAllBoardPieces = false;
     ControlWindow* control;
     BoardSceneWidget* board;
+
+    lhc::position posFrom;
+    figure_type tFrom = figure_type::invalid;
+    figure_side sFrom = figure_side::invalid;
 };

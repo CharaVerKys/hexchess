@@ -38,6 +38,7 @@ void ClientController::receiveMove(lhc::protocol::payload::piece_move move){
     }
     board->setPiece(move.to,move.ver_type,move.ver_side);
 }
+
 void ClientController::receiveListOfAllMatches(lhc::protocol::payload::listOfAllMatches all){
     control->onListOfAllMatchesReceived(all);
     setFixedWidth(control->size().width());
@@ -95,4 +96,30 @@ void ClientController::onConnectToMatch(lhc::unique_id id){
     emit connectToMatch(id);
     assert(not waitForAllBoardPieces);
     waitForAllBoardPieces = true;
+}
+
+void ClientController::onClicked(std::optional<lhc::position> pos, std::optional<figure_type> type, std::optional<figure_side> side){
+    if(not pos.has_value()){
+        tFrom = figure_type::invalid;
+        sFrom = figure_side::invalid;
+    }
+    else if(tFrom == figure_type::invalid){
+        if(type.has_value()){
+            tFrom = *type;
+            sFrom = *side;
+            posFrom = *pos;
+        }else{
+            tFrom = figure_type::invalid;
+            sFrom = figure_side::invalid;
+        }
+    }else if(side.has_value() and sFrom not_eq figure_side::invalid and side.value() == sFrom){
+            tFrom = *type;
+            sFrom = *side;
+            posFrom = *pos;
+    }else{
+        lhc::protocol::payload::piece_move move_{posFrom,tFrom,sFrom,*pos};
+        emit makeMove(move_);
+        tFrom = figure_type::invalid;
+        sFrom = figure_side::invalid;
+    }
 }
