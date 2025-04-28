@@ -16,6 +16,7 @@ ClientController::ClientController()
     connect(control, &ControlWindow::deleteMatch, this, &ClientController::onDeleteMatch);
     connect(control, &ControlWindow::requestListOfAllMatches,this, &ClientController::requestListOfAllMatches);
     connect(control, &ControlWindow::connectToMatch, this, &ClientController::onConnectToMatch);
+    connect(board, &BoardSceneWidget::clicked, this, &ClientController::onClicked);
     connect(this, &ClientController::setId,control,&ControlWindow::setId);
 }
 
