@@ -66,7 +66,7 @@ void InterfaceAsio::onAbortGame(){
 }
 
 cvk::coroutine_t InterfaceAsio::sessionWaitLoop(){
-    std::variant<Asio::abortType, Asio::errorType, Asio::winGame,
+    std::variant<Asio::dummyType, Asio::abortType, Asio::errorType, Asio::winGame,
                lhc::protocol::payload::piece_move,
                lhc::protocol::payload::allBoardPieces>
     res = co_await asio_->waitSession();
@@ -76,6 +76,7 @@ cvk::coroutine_t InterfaceAsio::sessionWaitLoop(){
         },
         [](Asio::errorType){
             //todo handle
+            std::abort();
         },
         [this](Asio::winGame win){
             emit triggerGameEnd(win.s);
@@ -86,6 +87,9 @@ cvk::coroutine_t InterfaceAsio::sessionWaitLoop(){
         },
         [this](lhc::protocol::payload::allBoardPieces all){
             emit sendAllPieces(all);
+            sessionWaitLoop();
+        },
+        [this](Asio::dummyType){
             sessionWaitLoop();
         },
     };

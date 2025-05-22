@@ -44,6 +44,9 @@ cvk::coroutine_t MatchControl::initDefaultMatch(lhc::player_t white, lhc::player
 
     socketReceiveProcessLifetimeHandle.black = receivedFromBlack();
     socketReceiveProcessLifetimeHandle.white = receivedFromWhite();
+    [[maybe_unused]] bool coroSuccess = socketReceiveProcessLifetimeHandle.black.resume() and
+    socketReceiveProcessLifetimeHandle.white.resume();
+    assert(coroSuccess);
 }
 
 std::error_code MatchControl::reconnectPlayer(lhc::player_t&& disconnected){
@@ -99,7 +102,7 @@ DefaultCoroutine MatchControl::receivedFromWhite(){
         if(aborted){co_return;}
         
         auto packet = expected.value();
-        co_await processPacket(players.black, packet);
+        co_await processPacket(players.white, packet);
     }
 }
 
@@ -120,7 +123,7 @@ cvk::future<Unit> MatchControl::abortGame(){
     };
     lhc::protocol::PacketHeader headerB{
         sizeof(lhc::protocol::PacketHeader),
-        players.white->id,
+        players.black->id,
         lhc::protocol::action::abortGame
     };
 

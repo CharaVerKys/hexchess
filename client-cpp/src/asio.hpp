@@ -39,8 +39,9 @@ public:
 
     struct abortType{};
     struct errorType{};
+    struct dummyType{};
     struct winGame{figure_side s;};
-    cvk::future<std::variant<abortType,errorType,winGame,
+    cvk::future<std::variant<Asio::dummyType,abortType,errorType,winGame,
         lhc::protocol::payload::piece_move,
         lhc::protocol::payload::allBoardPieces>>
     waitSession();

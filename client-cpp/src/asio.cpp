@@ -219,7 +219,7 @@ cvk::future<Unit> Asio::abortGame(){
     co_return {};
 }
 
-cvk::future<std::variant<Asio::abortType,Asio::errorType,Asio::winGame,
+cvk::future<std::variant<Asio::dummyType,Asio::abortType,Asio::errorType,Asio::winGame,
     lhc::protocol::payload::piece_move,
     lhc::protocol::payload::allBoardPieces>>
 Asio::waitSession(){
@@ -241,6 +241,7 @@ Asio::waitSession(){
         }break;
         case action::enemyTurn:{
             // todo
+            co_return {dummyType{}};
         }break;
         case action::gameEnd_winBlack:{
             sessionSocket.reset();
@@ -266,6 +267,7 @@ Asio::waitSession(){
         }break;
         case action::wrongMovePiece:{
             //todo
+            co_return {dummyType{}};
         }break;
         default:
         [[maybe_unused]] int gccFixError;
